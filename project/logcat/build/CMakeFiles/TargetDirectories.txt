@@ -1,0 +1,3 @@
+/opt/source/project/logcat/build/CMakeFiles/edit_cache.dir
+/opt/source/project/logcat/build/CMakeFiles/rebuild_cache.dir
+/opt/source/project/logcat/build/CMakeFiles/logcat.dir

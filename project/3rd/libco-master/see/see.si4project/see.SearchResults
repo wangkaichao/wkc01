@@ -1,0 +1,25 @@
+---- RTLD_NEXT Matches (24 in 1 files) ----
+co_hook_sys_call.cpp line 101 : static socket_pfn_t g_sys_socket_func 	= (socket_pfn_t)dlsym(RTLD_NEXT,"socket");
+co_hook_sys_call.cpp line 102 : static connect_pfn_t g_sys_connect_func = (connect_pfn_t)dlsym(RTLD_NEXT,"connect");
+co_hook_sys_call.cpp line 103 : static close_pfn_t g_sys_close_func 	= (close_pfn_t)dlsym(RTLD_NEXT,"close");
+co_hook_sys_call.cpp line 105 : static read_pfn_t g_sys_read_func 		= (read_pfn_t)dlsym(RTLD_NEXT,"read");
+co_hook_sys_call.cpp line 106 : static write_pfn_t g_sys_write_func 	= (write_pfn_t)dlsym(RTLD_NEXT,"write");
+co_hook_sys_call.cpp line 108 : static sendto_pfn_t g_sys_sendto_func 	= (sendto_pfn_t)dlsym(RTLD_NEXT,"sendto");
+co_hook_sys_call.cpp line 109 : static recvfrom_pfn_t g_sys_recvfrom_func = (recvfrom_pfn_t)dlsym(RTLD_NEXT,"recvfrom");
+co_hook_sys_call.cpp line 111 : static send_pfn_t g_sys_send_func 		= (send_pfn_t)dlsym(RTLD_NEXT,"send");
+co_hook_sys_call.cpp line 112 : static recv_pfn_t g_sys_recv_func 		= (recv_pfn_t)dlsym(RTLD_NEXT,"recv");
+co_hook_sys_call.cpp line 114 : static poll_pfn_t g_sys_poll_func 		= (poll_pfn_t)dlsym(RTLD_NEXT,"poll");
+co_hook_sys_call.cpp line 117 : 										= (setsockopt_pfn_t)dlsym(RTLD_NEXT,"setsockopt");
+co_hook_sys_call.cpp line 118 : static fcntl_pfn_t g_sys_fcntl_func 	= (fcntl_pfn_t)dlsym(RTLD_NEXT,"fcntl");
+co_hook_sys_call.cpp line 120 : static setenv_pfn_t g_sys_setenv_func   = (setenv_pfn_t)dlsym(RTLD_NEXT,"setenv");
+co_hook_sys_call.cpp line 121 : static unsetenv_pfn_t g_sys_unsetenv_func = (unsetenv_pfn_t)dlsym(RTLD_NEXT,"unsetenv");
+co_hook_sys_call.cpp line 122 : static getenv_pfn_t g_sys_getenv_func   =  (getenv_pfn_t)dlsym(RTLD_NEXT,"getenv");
+co_hook_sys_call.cpp line 123 : static __res_state_pfn_t g_sys___res_state_func  = (__res_state_pfn_t)dlsym(RTLD_NEXT,"__res_state");
+co_hook_sys_call.cpp line 125 : static gethostbyname_pfn_t g_sys_gethostbyname_func = (gethostbyname_pfn_t)dlsym(RTLD_NEXT, "gethostbyname");
+co_hook_sys_call.cpp line 127 : static __poll_pfn_t g_sys___poll_func = (__poll_pfn_t)dlsym(RTLD_NEXT, "__poll");
+co_hook_sys_call.cpp line 132 : 			= (pthread_getspecific_pfn_t)dlsym(RTLD_NEXT,"pthread_getspecific");
+co_hook_sys_call.cpp line 135 : 			= (pthread_setspecific_pfn_t)dlsym(RTLD_NEXT,"pthread_setspecific");
+co_hook_sys_call.cpp line 138 : 			= (pthread_rwlock_rdlock_pfn_t)dlsym(RTLD_NEXT,"pthread_rwlock_rdlock");
+co_hook_sys_call.cpp line 141 : 			= (pthread_rwlock_wrlock_pfn_t)dlsym(RTLD_NEXT,"pthread_rwlock_wrlock");
+co_hook_sys_call.cpp line 144 : 			= (pthread_rwlock_unlock_pfn_t)dlsym(RTLD_NEXT,"pthread_rwlock_unlock");
+co_hook_sys_call.cpp line 170 : #define HOOK_SYS_FUNC(name) if( !g_sys_##name##_func ) { g_sys_##name##_func = (name##_pfn_t)dlsym(RTLD_NEXT,#name); }

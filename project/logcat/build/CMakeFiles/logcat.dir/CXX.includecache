@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/opt/source/project/common/log.hpp
+stdint.h
+-
+mutex
+-
+sys/mman.h
+-
+sys/stat.h
+-
+fcntl.h
+-
+stdarg.h
+-
+stdio.h
+-
+
+/opt/source/project/common/utils.hpp
+stdint.h
+-
+string
+-
+time.h
+-
+
+/opt/source/project/logcat/logcat.cpp
+stdint.h
+-
+unistd.h
+-
+stdio.h
+-
+utils.hpp
+/opt/source/project/logcat/utils.hpp
+log.hpp
+/opt/source/project/logcat/log.hpp
+

@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/opt/source/project/common/clog.h
+stdint.h
+-
+stdio.h
+-
+
+/opt/source/project/common/eventloop.h
+stdint.h
+-
+sys/epoll.h
+-
+list.h
+/opt/source/project/common/list.h
+
+/opt/source/project/common/list.h
+
+/opt/source/project/demoloop/demoloop.c
+stdio.h
+-
+eventloop.h
+/opt/source/project/demoloop/eventloop.h
+clog.h
+/opt/source/project/demoloop/clog.h
+
