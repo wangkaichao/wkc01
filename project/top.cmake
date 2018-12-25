@@ -5,7 +5,7 @@
 
 # set top directory path
 #exec_program("dirname `pwd`" OUTPUT_VARIABLE TOP)
-set(TOP "/work2/wangkaichao/project")
+set(TOP "/Users/wangkaichao/work/wkc01/project")
 
 set(CMAKE_SYSTEM_NAME Linux)
 # specify the cross compiler
@@ -52,15 +52,16 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -g3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g3")
 
 # add 3rd libraries here
-link_libraries("-Wl,-Bstatic")
-link_libraries("-Wl,--start-group")
+#link_libraries("-Wl,-Bstatic")
+#link_libraries("-Wl,--start-group")
 #link_libraries("-levent_core")
 link_libraries("-lcommon")
 #link_libraries("-lprotobuf")
 link_libraries("-lmd5cc")
 #link_libraries("-lboost_serialization")
-link_libraries("-Wl,--end-group")
-link_libraries("-Wl,-Bdynamic")
+#link_libraries("-Wl,--end-group")
+#link_libraries("-Wl,-Bdynamic")
 
 # system library
-link_libraries("-lpthread -lrt -ldl -lm -lc -lstdc++")
+#link_libraries("-lpthread -lrt -ldl -lm -lc -lstdc++")
+link_libraries("-lpthread -ldl -lm -lc -lstdc++")

@@ -10,13 +10,15 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <sys/epoll.h>
-#include <sys/signalfd.h>
-#include <sys/timerfd.h>
 #include <unistd.h>
 #include <assert.h>
 
 #include "eventloop.h"
+
+#if !defined( __APPLE__ ) && !defined( __FreeBSD__ )
+#include <sys/epoll.h>
+#include <sys/signalfd.h>
+#include <sys/timerfd.h>
 
 static void list_init(list_t *p);
 
@@ -403,3 +405,4 @@ int event_source_remove(event_source_t* source)
 	return 0;
 }
 
+#endif

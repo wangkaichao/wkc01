@@ -143,7 +143,8 @@ CONTINUE:
         case LOGCAT_ENABLE_TIME: // 添加[xxxx]时间戳
 		{
 			struct timespec t;
-			clock_gettime(CLOCK_BOOTTIME, &t);
+			//clock_gettime(CLOCK_BOOTTIME, &t);
+			clock_gettime(CLOCK_MONOTONIC_RAW, &t);
             l += snprintf((char *)buf + l, sizeof(buf) - l, "[%10ld.%06ld]", (long)t.tv_sec, t.tv_nsec % 1000);
 			cmd = LOGCAT_ENABLE;
             goto CONTINUE;
@@ -160,7 +161,8 @@ CONTINUE:
         case LOGCAT_DISABLE_TIME:
 		{
 			struct timespec t;
-			clock_gettime(CLOCK_BOOTTIME, &t);
+			//clock_gettime(CLOCK_BOOTTIME, &t);
+			clock_gettime(CLOCK_MONOTONIC_RAW, &t);
             l += snprintf((char *)buf + l, sizeof(buf) - l, "[%10ld.%06ld]", (long)t.tv_sec, t.tv_nsec % 1000);
 			cmd = LOGCAT_DISABLE;
             goto CONTINUE;

@@ -7,7 +7,6 @@
 #define _EVENT_LOOP_H
 
 #include <stdint.h>
-#include <sys/epoll.h>
 
 #include "list.h"
 
@@ -15,6 +14,8 @@
 extern "C" {
 #endif
 
+#if !defined( __APPLE__ ) && !defined( __FreeBSD__ )
+#include <sys/epoll.h>
 typedef int (* event_loop_fd_func_t)(int fd, void* data, struct epoll_event* ep);
 typedef int (* event_loop_timer_func_t)(void* data);
 typedef int (* event_loop_signal_func_t)(int signal_number, void* data);
@@ -86,6 +87,7 @@ event_source_t* event_loop_add_idle(event_loop_t* loop, event_loop_idle_func_t f
 
 int event_source_remove(event_source_t* source);
 void event_source_check(event_source_t* source);
+#endif
 
 #ifdef  __cplusplus
 }
