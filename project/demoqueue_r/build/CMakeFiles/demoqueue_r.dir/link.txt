@@ -1,1 +1,0 @@
-/usr/bin/g++      CMakeFiles/demoqueue_r.dir/demoqueue_r.cpp.o  -o demoqueue_r  -L/opt/source/project/common/build  -L/opt/source/project/3rd/md5-cc/lib -Wl,-Bstatic -Wl,--start-group -lcommon -lmd5cc -Wl,--end-group -Wl,-Bdynamic -lpthread -lrt -ldl -lm -lc -lstdc++ -Wl,-rpath,/opt/source/project/common/build:/opt/source/project/3rd/md5-cc/lib 

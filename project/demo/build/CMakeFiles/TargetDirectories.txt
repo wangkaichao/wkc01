@@ -1,3 +1,0 @@
-/opt/source/project/demo/build/CMakeFiles/edit_cache.dir
-/opt/source/project/demo/build/CMakeFiles/rebuild_cache.dir
-/opt/source/project/demo/build/CMakeFiles/demo.dir

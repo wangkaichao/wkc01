@@ -1,3 +1,0 @@
-/opt/source/project/demoqueue_r/build/CMakeFiles/edit_cache.dir
-/opt/source/project/demoqueue_r/build/CMakeFiles/rebuild_cache.dir
-/opt/source/project/demoqueue_r/build/CMakeFiles/demoqueue_r.dir

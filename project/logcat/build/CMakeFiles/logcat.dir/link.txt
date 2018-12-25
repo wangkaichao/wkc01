@@ -1,1 +1,0 @@
-/usr/bin/g++    -std=c++11 -g3   CMakeFiles/logcat.dir/logcat.cpp.o  -o logcat  -L/opt/source/project/common/build  -L/opt/source/project/3rd/md5-cc/lib -Wl,-Bstatic -Wl,--start-group -lcommon -lmd5cc -Wl,--end-group -Wl,-Bdynamic -lpthread -lrt -ldl -lm -lc -lstdc++ -Wl,-rpath,/opt/source/project/common/build:/opt/source/project/3rd/md5-cc/lib 
