@@ -34,7 +34,7 @@ namespace common {
 	 * @return version number
 	 */
 	std::string getSoftVersion();
-	
+
 	/*
 	 * @brief get hardware type
 	 * @return hardware type
@@ -42,34 +42,42 @@ namespace common {
 	std::string getHardwareType();
 
 	/*
-	 * @brief get build date 
+	 * @brief get date
 	 * @return YYYY-MM-DD
 	 */
-	std::string getBuildDate();
+	std::string getDate();
 
 	/*
-	 * @brief get build time 
+	 * @brief get time
 	 * @return hh:mm:ss
 	 */
-	std::string getBuildTime();
+	std::string getTime();
 
 	/*
-	 * @brief get build weekday
+	 * @brief get weekday
 	 * @return Weekday
 	 */
-	std::string getBuildWeekday();
+	std::string getWeekday();
 
 	/*
-	 * @brief get build date and time
+	 * @brief get date and time
 	 * @return YYYY-MM-DD hh:mm:ss
 	 */
-	std::string getBuildDateTime();
+	std::string getDateTime();
 
 	/*
-	 * @brief get build date-time
+	 * @brief get date-time
 	 * @param[out] ptm
 	 */
-	void getBuildDateTime(struct tm *ptm);
+	void getDateTime(struct tm *ptm);
+
+    /**
+     * @brief get build date time
+     *
+     * @param date
+     * @param time
+     */
+    void getBuildDateTime(string &date, string &time);
 }
 
 #endif

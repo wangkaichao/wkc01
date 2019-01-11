@@ -13,16 +13,12 @@
 
 using namespace std;
 
-/*
- * @brief get random ascii string, which length is 8 bytes
- * @return random value
- */
 string common::getRandString(int len)
 {
   FILE *file = fopen("/dev/urandom", "r");
   if (!file)
     THROW(ERR_FOPEN);
-  
+
   array<char, 8> buffer;
   fread(buffer.data(), len, 1, file);
   fclose(file);
@@ -33,15 +29,11 @@ string common::getRandString(int len)
   return string(buffer.begin(), buffer.end());
 }
 
-/*
- * @brief caculate md5
- * @return md5 value
- */
 string common::getMd5(const string& data)
 {
   if (data.empty())
     THROW(ERR_ARG);
-  
+
   MD5 md5;
   md5.update((unsigned char*)data.c_str(), data.length());
   md5.finalize();
@@ -51,10 +43,6 @@ string common::getMd5(const string& data)
   return result;
 }
 
-/*
- * @brief get crc32
- * @return crc32 value
- */
 unsigned int common::crc32(const unsigned char *buf, int len)
 {
     static unsigned char isFirst = 1;
@@ -90,96 +78,68 @@ unsigned int common::crc32(const unsigned char *buf, int len)
     return crc;
 }
 
-/*
- * @brief get soft version
- * @return version number
- */
 string common::getSoftVersion()
 {
 	return string("1.0.0");
 }
 
-/*
- * @brief get hardware type
- * @return hardware type
- */
 std::string common::getHardwareType()
 {
 	return string("Hi3516D");
 }
 
-/*
- * @brief get build date 
- * @return YYYY-MM-DD
- */
-string common::getBuildDate()
+string common::getDate()
 {
 	struct tm tm;
 	getBuildDateTime(&tm);
-	
+
 	array<char, 64> buf;
 	strftime(buf.data(), buf.size(), "%F", &tm);
-	
+
 	return string(buf.data());
 }
 
-/*
- * @brief get build time 
- * @return hh:mm:ss
- */
-string common::getBuildTime()
+string common::getTime()
 {
 	struct tm tm;
 	getBuildDateTime(&tm);
-	
+
 	array<char, 64> buf;
 	strftime(buf.data(), buf.size(), "%T", &tm);
-	
+
 	return string(buf.data());
 }
 
-/*
- * @brief get build weekday
- * @return Weekday
- */
-string common::getBuildWeekday()
+string common::getWeekday()
 {
 	struct tm tm;
 	getBuildDateTime(&tm);
-	
+
 	array<char, 64> buf;
 	strftime(buf.data(), buf.size(), "%a", &tm);
-	
+
 	return string(buf.data());
 }
 
-/*
- * @brief get build date and time
- * @return YYYY-MM-DD hh:mm:ss
- */
-string common::getBuildDateTime()
+string common::getDateTime()
 {
 	struct tm tm;
 	getBuildDateTime(&tm);
-	
+
 	array<char, 64> buf;
 	strftime(buf.data(), buf.size(), "%F %T %a", &tm);
-	
+
 	return string(buf.data());
 }
 
-/*
- * @brief get build date-time
- * @param[out] ptm
- */
-void common::getBuildDateTime(struct tm *ptm)
+void common::getDateTime(struct tm *ptm)
 {
 	struct timespec spec;
 
 	/*if (setenv("TZ", "GMT-8", 1) == -1)
-	if (setenv("TZ", "CST-8", 1) == -1) 
-	if (putenv("TZ=CST") == -1) 
-			return -1; 
+	if (setenv("TZ", "CST-8", 1) == -1)
+	if (putenv("TZ=CST") == -1)
+			return -1;
 
 	tzset();
 	printf("daylight:%d, timezone:%ld, tzname[0]:%s\n",
@@ -191,7 +151,31 @@ void common::getBuildDateTime(struct tm *ptm)
 		log_dbg("%m\n", errno);
 		THROW(ERR_TIME);
 	}
-	
+
 	localtime_r(&spec.tv_sec, ptm);
 }
 
+void common::getBuildDateTime(string &date, string &time)
+{
+    const char szEnglishMonth[12][4] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+    char szTmpDate[16] = {0};
+    char szMonth[4] = {0};
+    int iYear,iMonth,iDay;
+    array<char, 64> buf;
+
+    if (szDate != NULL) {
+        sprintf(szTmpDate, "%s", __DATE__); //"Sep 18 2010"
+        sscanf(szTmpDate,"%s %d %d", szMonth, &iDay, &iYear);
+        for (int i = 0; i < 12; i++) {
+            if (strncmp(szMonth, szEnglishMonth[i], 3) == 0) {
+                iMonth = i + 1;
+                break;
+            }
+        }
+        sprintf(buf.data(), "%04d-%02d-%02d", iYear, iMonth, iDay);
+        date = string(buf.data());
+    }
+
+    sprintf(buf.data(), "%s", __TIME__); //"10:59:19"
+    time = string(buf.data());
+}
