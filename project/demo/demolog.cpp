@@ -35,10 +35,10 @@ int demo_main()
 
 int main()
 {
-	string buildinfo = getBuildDateTime();
-	string date = getBuildDate();
-	string time = getBuildTime();
-	string weekday = getBuildWeekday();
+	string buildinfo = getDateTime();
+	string date = getDate();
+	string time = getTime();
+	string weekday = getWeekday();
 
 	log_dbg("Version:%s, Build:%s, %s, %s, %s\n",
 			getSoftVersion().c_str(),
@@ -48,12 +48,16 @@ int main()
 			weekday.c_str());
 
 	struct tm tm;
-	getBuildDateTime(&tm);
+	getDateTime(&tm);
 	
 	array<char, 64> buf;
 	strftime(buf.data(), buf.size(), "%F %T %a", &tm);
 	log_dbg("%s\n", buf.data());
 
 	log_dbg("%s\n", getHardwareType().c_str());
+
+    string strDate, strTime;
+    getBuildDateTime(strDate, strTime);
+    log_dbg("build:%s %s\n", strDate.c_str(), strTime.c_str());
 	return 0;
 }

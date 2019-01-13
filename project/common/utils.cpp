@@ -91,7 +91,7 @@ std::string common::getHardwareType()
 string common::getDate()
 {
 	struct tm tm;
-	getBuildDateTime(&tm);
+	getDateTime(&tm);
 
 	array<char, 64> buf;
 	strftime(buf.data(), buf.size(), "%F", &tm);
@@ -102,7 +102,7 @@ string common::getDate()
 string common::getTime()
 {
 	struct tm tm;
-	getBuildDateTime(&tm);
+	getDateTime(&tm);
 
 	array<char, 64> buf;
 	strftime(buf.data(), buf.size(), "%T", &tm);
@@ -113,7 +113,7 @@ string common::getTime()
 string common::getWeekday()
 {
 	struct tm tm;
-	getBuildDateTime(&tm);
+	getDateTime(&tm);
 
 	array<char, 64> buf;
 	strftime(buf.data(), buf.size(), "%a", &tm);
@@ -124,7 +124,7 @@ string common::getWeekday()
 string common::getDateTime()
 {
 	struct tm tm;
-	getBuildDateTime(&tm);
+	getDateTime(&tm);
 
 	array<char, 64> buf;
 	strftime(buf.data(), buf.size(), "%F %T %a", &tm);
@@ -163,18 +163,16 @@ void common::getBuildDateTime(string &date, string &time)
     int iYear,iMonth,iDay;
     array<char, 64> buf;
 
-    if (szDate != NULL) {
-        sprintf(szTmpDate, "%s", __DATE__); //"Sep 18 2010"
-        sscanf(szTmpDate,"%s %d %d", szMonth, &iDay, &iYear);
-        for (int i = 0; i < 12; i++) {
-            if (strncmp(szMonth, szEnglishMonth[i], 3) == 0) {
-                iMonth = i + 1;
-                break;
-            }
+    sprintf(szTmpDate, "%s", __DATE__); //"Sep 18 2010"
+    sscanf(szTmpDate,"%s %d %d", szMonth, &iDay, &iYear);
+    for (int i = 0; i < 12; i++) {
+        if (strncmp(szMonth, szEnglishMonth[i], 3) == 0) {
+            iMonth = i + 1;
+            break;
         }
-        sprintf(buf.data(), "%04d-%02d-%02d", iYear, iMonth, iDay);
-        date = string(buf.data());
     }
+    sprintf(buf.data(), "%04d-%02d-%02d", iYear, iMonth, iDay);
+    date = string(buf.data());
 
     sprintf(buf.data(), "%s", __TIME__); //"10:59:19"
     time = string(buf.data());

@@ -77,7 +77,7 @@ namespace common {
      * @param date
      * @param time
      */
-    void getBuildDateTime(string &date, string &time);
+    void getBuildDateTime(std::string &date, std::string &time);
 }
 
 #endif
