@@ -6,3 +6,7 @@ project/demoqueue_r/build/
 project/demolist_r/build/
 project/3rd/sqlite/sqlite-amalgamation-3260000/cs/
 project/3rd/sqlite/sqlite-amalgamation-3260000/ctags/
+project/3rd/sqlite/sqlite-amalgamation-3260000/libsqlite3.a
+project/3rd/sqlite/sqlite-amalgamation-3260000/libsqlite3.so
+project/3rd/sqlite/sqlite-amalgamation-3260000/sqlite3
+project/3rd/sqlite/sqlite-amalgamation-3260000/sqlite3.o
