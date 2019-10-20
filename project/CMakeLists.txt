@@ -17,9 +17,9 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 #set head file path
 include_directories(${PROJECT_SOURCE_DIR}/3rd/md5-cc/include)
 include_directories(${PROJECT_SOURCE_DIR}/3rd/sqlite/sqlite-amalgamation-3260000)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/log)
 include_directories(${PROJECT_SOURCE_DIR}/utils)
-include_directories(${PROJECT_SOURCE_DIR}/ipc)
 
 #set library path
 link_directories(${PROJECT_SOURCE_DIR}/3rd/md5-cc/lib)
