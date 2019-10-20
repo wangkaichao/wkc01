@@ -33,9 +33,9 @@ do {                                            \
     }                                           \
 } while (0)
 
-#define CHK_FUN(func)                           \
+#define CHK_FUN(func, ret)                      \
 do {                                            \
-    int ret = func;                             \
+    ret = func;                             \
     if (ret != 0) {                             \
         LOGE("%s %d: %s failed %d(%#x)", __func__, __LINE__, #func, ret, ret); \
     }                                           \
