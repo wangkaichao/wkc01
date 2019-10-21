@@ -4,6 +4,7 @@
 */
 #include <md5.hh>
 #include <errno.h>
+#include <string.h>
 #include <sstream>
 #include <array>
 

@@ -13,8 +13,8 @@ typedef enum
     WM_TRUE,
 } WM_BOOL;
 
-#define unsigned long       wm_id_t
-#define void *              wm_handle_t
+typedef unsigned long       wm_id_t;
+typedef void *              wm_handle_t;
 
 #define MAX(x, y)   (x) > (y) ? (x) : (y)
 #define MIN(x, y)   (x) < (y) ? (x) : (y)

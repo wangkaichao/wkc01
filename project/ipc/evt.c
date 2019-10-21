@@ -1,5 +1,6 @@
-#include <pthread>
+#include <pthread.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "evt.h"
 #include "wm_log.h"
@@ -19,7 +20,7 @@ int evt_create(wm_handle_t *pHandle, int s32IsShared, int s32IsTimeRelative)
     CHK_ARG_RE(!pHandle, -1);
     pstEvt = (evt_t *)calloc(1, sizeof(evt_t));
     CHK_ARG_RE(!pstEvt, -1);
-    CHK_FUN_RE(pthread_mutex_init(&pstEvt->mutex, NULL), ERR_EXIT1);
+    CHK_FUN_GT(pthread_mutex_init(&pstEvt->mutex, NULL), ERR_EXIT1);
     CHK_FUN_GT(pthread_mutex_lock(&pstEvt->mutex), ERR_EXIT2);
     
     if (s32IsShared || s32IsTimeRelative)
@@ -67,9 +68,9 @@ int evt_destroy(wm_handle_t handle)
 
     CHK_ARG_RE(!pstEvt, -1);
     CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
-    CHK_FUN(pthread_cond_broadcast(&pstEvt->cond));
-    CHK_FUN(pthread_cond_destroy(&pstEvt->cond));
-    CHK_FUN(pthread_condattr_destroy(&pstEvt->condattr));
+    //CHK_FUN_RE(pthread_cond_broadcast(&pstEvt->cond), -1);
+    CHK_FUN_RE(pthread_cond_destroy(&pstEvt->cond), -1);
+    CHK_FUN_RE(pthread_condattr_destroy(&pstEvt->condattr), -1);
     CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
     CHK_FUN_RE(pthread_mutex_destroy(&pstEvt->mutex), -1);
     free(pstEvt);
@@ -107,7 +108,7 @@ int evt_wait(wm_handle_t handle, unsigned long ulMilsecond)
 
     CHK_ARG_RE(!pstEvt, -1);
     CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
-    if (ulTimeout == 0)
+    if (ulMilsecond == 0)
     {
         if (pstEvt->state != 1)
         {
@@ -115,7 +116,7 @@ int evt_wait(wm_handle_t handle, unsigned long ulMilsecond)
             return -1;
         }
     }
-    else if (ulTimeout == (unsigned long)-1)
+    else if (ulMilsecond == (unsigned long)-1)
     {
         while (pstEvt->state != 1)
             pthread_cond_wait(&pstEvt->cond, &pstEvt->mutex);
@@ -126,13 +127,17 @@ int evt_wait(wm_handle_t handle, unsigned long ulMilsecond)
         struct timespec tp;
 
         CHK_FUN_RE(pthread_condattr_getclock(&pstEvt->condattr, &clock_id), -1);
-        CHK_FUN_RE(clock_gettime(clock_id, &tp));
+        CHK_FUN_RE(clock_gettime(clock_id, &tp), -1);
+        
         tp.tv_sec   += ulMilsecond / 1000;
         ulMilsecond %= 1000;
+        tp.tv_nsec += ulMilsecond * 1000 * 1000;
+        if (tp.tv_nsec > 1000000000)
+        {
+            tp.tv_nsec -= 1000000000;
+            tp.tv_sec  += 1;
+        }
 
-        tp.tv_nsec += ulMilsecond * 1000 * 1000
-        tp.tv_sec  += tp.tv_nsec / (1000 * 1000 * 1000);
-        tp.tv_nsec %= 1000 * 1000 * 1000;
         while (pstEvt->state != 1)
         {
             int rc = pthread_cond_timedwait(&pstEvt->cond, &pstEvt->mutex, &tp);

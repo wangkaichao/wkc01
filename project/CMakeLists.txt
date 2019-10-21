@@ -20,6 +20,7 @@ include_directories(${PROJECT_SOURCE_DIR}/3rd/sqlite/sqlite-amalgamation-3260000
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/log)
 include_directories(${PROJECT_SOURCE_DIR}/utils)
+include_directories(${PROJECT_SOURCE_DIR}/ipc)
 
 #set library path
 link_directories(${PROJECT_SOURCE_DIR}/3rd/md5-cc/lib)
@@ -35,7 +36,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g3")
 
 message("========================================")
-option(Mac "Mac" ON)
+#option(Mac "Mac" ON)
 if(Mac)
     message("Mac")
     set(CMAKE_MACOSX_RPATH 1)
@@ -84,6 +85,19 @@ else()
     target_link_libraries(utils_static md5cc)
 endif()
 
+aux_source_directory(${PROJECT_SOURCE_DIR}/ipc IPC_SRC)
+if(USE_SHARED)
+    add_library(ipc_share SHARED ${IPC_SRC})
+    set_target_properties(ipc_share PROPERTIES OUTPUT_NAME "ipc")
+    set_target_properties(ipc_share PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+    #target_link_libraries(ipc_share md5cc)
+else()
+    add_library(ipc_static STATIC ${IPC_SRC})
+    set_target_properties(ipc_static PROPERTIES OUTPUT_NAME "ipc")
+    set_target_properties(ipc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+    #target_link_libraries(ipc_static md5cc)
+endif()
+
 ######################### bin ######################################
 set(DEMOLOG_SRC ${PROJECT_SOURCE_DIR}/demo/demolog.c)
 # target execute
@@ -96,6 +110,20 @@ endif()
 set_target_properties(demolog_exe PROPERTIES OUTPUT_NAME "demolog")
 set_target_properties(demolog_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 target_link_libraries(demolog_exe log)
+
+
+set(DEMOIPC_SRC ${PROJECT_SOURCE_DIR}/demo/demoipc.c)
+# target execute
+add_executable(demoipc_exe ${DEMOIPC_SRC})
+if(USE_SHARED)
+    add_dependencies(demoipc_exe ipc_share)
+else()
+    add_dependencies(demoipc_exe ipc_static)
+endif()
+set_target_properties(demoipc_exe PROPERTIES OUTPUT_NAME "demoipc")
+set_target_properties(demoipc_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+target_link_libraries(demoipc_exe ipc)
+
 
 aux_source_directory(${PROJECT_SOURCE_DIR}/logcat LOGCAT_SRC)
 # target execute

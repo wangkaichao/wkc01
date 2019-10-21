@@ -1,6 +1,8 @@
 #ifndef WM_LOG_H
 #define WM_LOG_H
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
