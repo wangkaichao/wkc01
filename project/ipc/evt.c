@@ -107,9 +107,10 @@ int evt_wait(wm_handle_t handle, unsigned long ulMilsecond)
     evt_t *pstEvt = (evt_t *)handle;
 
     CHK_ARG_RE(!pstEvt, -1);
-    CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
+
     if (ulMilsecond == 0)
     {
+        CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
         if (pstEvt->state != 1)
         {
             CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
@@ -118,6 +119,7 @@ int evt_wait(wm_handle_t handle, unsigned long ulMilsecond)
     }
     else if (ulMilsecond == (unsigned long)-1)
     {
+        CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
         while (pstEvt->state != 1)
             pthread_cond_wait(&pstEvt->cond, &pstEvt->mutex);
     }
@@ -131,13 +133,14 @@ int evt_wait(wm_handle_t handle, unsigned long ulMilsecond)
         
         tp.tv_sec   += ulMilsecond / 1000;
         ulMilsecond %= 1000;
-        tp.tv_nsec += ulMilsecond * 1000 * 1000;
+        tp.tv_nsec += ulMilsecond * 1000000;
         if (tp.tv_nsec > 1000000000)
         {
             tp.tv_nsec -= 1000000000;
             tp.tv_sec  += 1;
         }
 
+        CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
         while (pstEvt->state != 1)
         {
             int rc = pthread_cond_timedwait(&pstEvt->cond, &pstEvt->mutex, &tp);
