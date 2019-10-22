@@ -7,6 +7,7 @@
 #include <errno.h>
 
 #include "evt.h"
+#include "wm_sem.h"
 
 static int gs32Run = 0;
 static int gs32RunP = 0;
@@ -103,12 +104,100 @@ static void sample_evt_stop(void)
     evt_destroy(hHandle);
 }
 
+//---------------------------------------------------------------------
+
+static int gs32SemP = 0, gs32SemV1 = 0, gs32SemV2 = 0;
+static pthread_t sem_th_p, sem_th_v1, sem_th_v2;
+static wm_handle_t sem_handle;
+
+static void *thread_sem_p(void *pArg)
+{
+    int cnt = 100;
+    printf("%s enter....\n", __func__);
+
+    while (gs32SemP && cnt > 0)
+    {
+        wm_sem_post(sem_handle);
+        cnt--;
+    }
+
+    printf("%s quit....\n", __func__);
+    return NULL;
+}
+
+static void *thread_sem_v1(void *pArg)
+{
+    int rc = -1;
+    int cnt = 0;
+    printf("%s enter....\n", __func__);
+
+    while (gs32SemV1)
+    {
+        rc = wm_sem_wait(sem_handle, -1);
+        if (rc == 0)
+        {
+            wm_sem_getvalue(sem_handle, &cnt);
+            printf("%s %d\n", __func__, cnt);
+        }
+    }
+
+    printf("%s quit....\n", __func__);
+    return NULL;
+}
+
+static void *thread_sem_v2(void *pArg)
+{
+    int rc = -1;
+    int cnt = 0;
+    printf("%s enter....\n", __func__);
+
+    while (gs32SemV2)
+    {
+        rc = wm_sem_wait(sem_handle, 0);
+        if (rc == 0)
+        {
+            wm_sem_getvalue(sem_handle, &cnt);
+            printf("%s %d\n", __func__, cnt);
+        }
+    }
+
+    printf("%s quit....\n", __func__);
+    return NULL;
+}
+
+static void sample_sem_start(void)
+{
+    wm_sem_create(&sem_handle, 0, 0, 1);
+
+    gs32SemP = 1;
+    pthread_create(&sem_th_p, NULL, thread_sem_p, NULL);
+    gs32SemV1 = 1;
+    pthread_create(&sem_th_v1, NULL, thread_sem_v1, NULL);
+    gs32SemV2 = 1;
+    pthread_create(&sem_th_v2, NULL, thread_sem_v2, NULL);
+}
+
+static void sample_sem_stop(void)
+{
+    gs32SemP = 0;
+    gs32SemV1 = 0;
+    gs32SemV2 = 0;
+    pthread_join(sem_th_p, NULL);
+    pthread_join(sem_th_v1, NULL);
+    pthread_join(sem_th_v2, NULL);
+
+    wm_sem_destroy(sem_handle);
+}
+
+
 static void printUsage(void)
 {
     printf("Usage:\n");
     printf("    input ? :print usage\n");
     printf("    input 1 :evt start\n");
     printf("    input 2 :evt stop\n");
+    printf("    input 3 :sem start\n");
+    printf("    input 4 :sem stop\n");
     printf("    input q :quit.\n");
 }
 
@@ -135,8 +224,10 @@ int main(int argc, char *argv[])
                 sample_evt_stop();
                 break;
             case '3':
+                sample_sem_start();
                 break;
             case '4':
+                sample_sem_stop();
                 break;
             case 'q':
                 isQuit = 1;

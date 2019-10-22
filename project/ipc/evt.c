@@ -77,6 +77,17 @@ int evt_destroy(wm_handle_t handle)
     return 0;
 }
 
+int evt_reset(wm_handle_t handle)
+{
+    evt_t *pstEvt = (evt_t *)handle;
+    
+    CHK_ARG_RE(!pstEvt, -1);
+    CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
+    pstEvt->state = 0;
+    CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
+    return 0;
+}
+
 int evt_signal(wm_handle_t handle)
 {
     evt_t *pstEvt = (evt_t *)handle;
@@ -99,7 +110,6 @@ int evt_broadcast(wm_handle_t handle)
     CHK_FUN_RE(pthread_cond_broadcast(&pstEvt->cond), -1);
     CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
     return 0;
-
 }
 
 int evt_wait(wm_handle_t handle, unsigned long ulMilsecond)
@@ -131,9 +141,8 @@ int evt_wait(wm_handle_t handle, unsigned long ulMilsecond)
         CHK_FUN_RE(pthread_condattr_getclock(&pstEvt->condattr, &clock_id), -1);
         CHK_FUN_RE(clock_gettime(clock_id, &tp), -1);
         
-        tp.tv_sec   += ulMilsecond / 1000;
-        ulMilsecond %= 1000;
-        tp.tv_nsec += ulMilsecond * 1000000;
+        tp.tv_sec  += ulMilsecond / 1000;
+        tp.tv_nsec += (ulMilsecond % 1000) * 1000000;
         if (tp.tv_nsec > 1000000000)
         {
             tp.tv_nsec -= 1000000000;
