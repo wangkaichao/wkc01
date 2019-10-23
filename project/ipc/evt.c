@@ -11,6 +11,8 @@ typedef struct evt_t
     pthread_condattr_t  condattr;
     pthread_mutex_t     mutex;
     int                 state;
+    int                 s32Rd;
+    int                 s32Wr;
 } evt_t;
 
 int evt_create(wm_handle_t *pHandle, int s32IsShared, int s32IsTimeRelative)
@@ -77,57 +79,28 @@ int evt_destroy(wm_handle_t handle)
     return 0;
 }
 
-int evt_reset(wm_handle_t handle)
+int evt_mtx_signal(wm_handle_t handle)
 {
     evt_t *pstEvt = (evt_t *)handle;
     
     CHK_ARG_RE(!pstEvt, -1);
     CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
-    pstEvt->state = 0;
-    CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
-    return 0;
-}
-
-int evt_signal(wm_handle_t handle)
-{
-    evt_t *pstEvt = (evt_t *)handle;
-    
-    CHK_ARG_RE(!pstEvt, -1);
-    CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
-    pstEvt->state = 1;
-    CHK_FUN_RE(pthread_cond_signal(&pstEvt->cond), -1);
-    CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
-    return 0;
-}
-
-int evt_broadcast(wm_handle_t handle)
-{
-    evt_t *pstEvt = (evt_t *)handle;
-    
-    CHK_ARG_RE(!pstEvt, -1);
-    CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
-    pstEvt->state = 1;
-    CHK_FUN_RE(pthread_cond_broadcast(&pstEvt->cond), -1);
-    CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
-    return 0;
-}
-
-int evt_wait(wm_handle_t handle, unsigned long ulMilsecond)
-{
-    evt_t *pstEvt = (evt_t *)handle;
-
-    CHK_ARG_RE(!pstEvt, -1);
-
-    if (ulMilsecond == 0)
+    if (pstEvt->state == 0)
     {
-        CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
-        if (pstEvt->state != 1)
-        {
-            CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
-            return -1;
-        }
+        CHK_FUN_RE(pthread_cond_signal(&pstEvt->cond), -1);
+        pstEvt->state = 1;
     }
-    else if (ulMilsecond == (unsigned long)-1)
+    CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
+    return 0;
+}
+
+int evt_mtx_wait(wm_handle_t handle, unsigned long ulMilsecond)
+{
+    evt_t *pstEvt = (evt_t *)handle;
+
+    CHK_ARG_RE(!pstEvt, -1);
+
+    if (ulMilsecond == (unsigned long)-1)
     {
         CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
         while (pstEvt->state != 1)
@@ -162,6 +135,83 @@ int evt_wait(wm_handle_t handle, unsigned long ulMilsecond)
     }
 
     pstEvt->state = 0;
+    CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
+    return 0;
+}
+
+int evt_wr_broadcast(wm_handle_t handle)
+{
+    evt_t *pstEvt = (evt_t *)handle;
+    
+    CHK_ARG_RE(!pstEvt, -1);
+    CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
+    if (pstEvt->s32Rd > 0)
+    {
+        CHK_FUN_RE(pthread_cond_broadcast(&pstEvt->cond), -1);
+        pstEvt->s32Wr = 1;
+    }
+    CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
+    return 0;
+}
+
+int evt_rd_wait(wm_handle_t handle, unsigned long ulMilsecond)
+{
+    evt_t *pstEvt = (evt_t *)handle;
+
+    CHK_ARG_RE(!pstEvt, -1);
+
+    if (ulMilsecond == (unsigned long)-1)
+    {
+        CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
+        while (pstEvt->s32Wr != 1 || pstEvt->s32Rd > 0)
+        {
+            ++pstEvt->s32Rd;
+            CHK_FUN_RE(pthread_cond_wait(&pstEvt->cond, &pstEvt->mutex), -1);
+            --pstEvt->s32Rd;
+            if (pstEvt->s32Wr == 1)
+                break;
+        }
+    }
+    else
+    {
+        clockid_t clock_id;
+        struct timespec tp;
+
+        CHK_FUN_RE(pthread_condattr_getclock(&pstEvt->condattr, &clock_id), -1);
+        CHK_FUN_RE(clock_gettime(clock_id, &tp), -1);
+        
+        tp.tv_sec  += ulMilsecond / 1000;
+        tp.tv_nsec += (ulMilsecond % 1000) * 1000000;
+        if (tp.tv_nsec > 1000000000)
+        {
+            tp.tv_nsec -= 1000000000;
+            tp.tv_sec  += 1;
+        }
+
+        CHK_FUN_RE(pthread_mutex_lock(&pstEvt->mutex), -1);
+        while (pstEvt->s32Wr != 1 || pstEvt->s32Rd > 0)
+        {
+            int rc = -1;
+
+            ++pstEvt->s32Rd;
+            rc = pthread_cond_timedwait(&pstEvt->cond, &pstEvt->mutex, &tp);
+            --pstEvt->s32Rd;
+            if (rc == ETIMEDOUT)
+            {
+                CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
+                return -1;
+            }
+
+            if (pstEvt->s32Wr == 1)
+                break;
+        }
+    }
+
+    if (pstEvt->s32Rd == 0)
+    {
+        pstEvt->s32Wr = 0;
+    }
+
     CHK_FUN_RE(pthread_mutex_unlock(&pstEvt->mutex), -1);
     return 0;
 }

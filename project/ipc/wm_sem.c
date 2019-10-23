@@ -85,9 +85,28 @@ int wm_sem_post(wm_handle_t handle)
     
     CHK_ARG_RE(!pstSem, -1);
     CHK_FUN_RE(pthread_mutex_lock(&pstSem->mutex), -1);
+    if (pstSem->cnt == 0)
+    {
+        CHK_FUN_RE(pthread_cond_signal(&pstSem->cond), -1);
+    }
     pstSem->cnt++;
     CHK_ARG_RE(pstSem->cnt < 0, -1);
-    CHK_FUN_RE(pthread_cond_signal(&pstSem->cond), -1);
+    CHK_FUN_RE(pthread_mutex_unlock(&pstSem->mutex), -1);
+    return 0;
+}
+
+int wm_sem_broadcast(wm_handle_t handle, int s32Num)
+{
+    wm_sem_t *pstSem = (wm_sem_t *)handle;
+    
+    CHK_ARG_RE(!pstSem, -1);
+    CHK_FUN_RE(pthread_mutex_lock(&pstSem->mutex), -1);
+    if (pstSem->cnt == 0)
+    {
+        CHK_FUN_RE(pthread_cond_broadcast(&pstSem->cond), -1);
+    }
+    pstSem->cnt += s32Num;
+    CHK_ARG_RE(pstSem->cnt < 0, -1);
     CHK_FUN_RE(pthread_mutex_unlock(&pstSem->mutex), -1);
     return 0;
 }
@@ -98,20 +117,13 @@ int wm_sem_wait(wm_handle_t handle, unsigned long ulMilsecond)
 
     CHK_ARG_RE(!pstSem, -1);
 
-    if (ulMilsecond == 0)
-    {
-        CHK_FUN_RE(pthread_mutex_lock(&pstSem->mutex), -1);
-        if (pstSem->cnt <= 0)
-        {
-            CHK_FUN_RE(pthread_mutex_unlock(&pstSem->mutex), -1);
-            return -1;
-        }
-    }
-    else if (ulMilsecond == (unsigned long)-1)
+    if (ulMilsecond == (unsigned long)-1)
     {
         CHK_FUN_RE(pthread_mutex_lock(&pstSem->mutex), -1);
         while (pstSem->cnt <= 0)
+        {
             pthread_cond_wait(&pstSem->cond, &pstSem->mutex);
+        }
     }
     else
     {

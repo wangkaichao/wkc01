@@ -12,7 +12,8 @@ set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-#execute_process(COMMAND sh ${PATH}/XXXX.sh)
+execute_process(COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/bin)
+execute_process(COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/lib)
 
 #set head file path
 include_directories(${PROJECT_SOURCE_DIR}/3rd/md5-cc/include)
