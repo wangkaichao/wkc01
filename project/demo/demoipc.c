@@ -8,6 +8,7 @@
 
 #include "evt.h"
 #include "wm_sem.h"
+#include "wm_epoll.h"
 
 static int gs32Run = 0;
 static int gs32RunP = 0;
@@ -292,6 +293,100 @@ static void sample_sem_stop(void)
     wm_sem_destroy(sem_handle);
     sem_handle = 0;
 }
+//------------------------------------------------------------
+static int gs32EpInit;
+static int gs32EpRun1, gs32EpRun2;
+static pthread_t ep_th1, ep_th2;
+
+static void *timer_cb1(int fd, void *pArg)
+{
+	uint64_t expires;
+	int len;
+
+	len = read(fd, &expires, sizeof(expires));
+    printf("%s %ld\n", __func__, (long)pArg);
+    return NULL;
+}
+
+static void *timer_cb2(int fd, void *pArg)
+{
+    uint64_t expires;
+	int len;
+
+	len = read(fd, &expires, sizeof(expires));
+    printf("%s %ld\n", __func__, (long)pArg);
+    return NULL;
+}
+
+static void *thread_ep1(void *pArg)
+{
+    wm_handle_t handle;
+    int fd1, fd2;
+
+    printf("%s enter....\n", __func__);
+
+    wm_epoll_create(&handle, 1024);
+    fd1 = wm_epoll_timer_open(3000, 1000);
+    wm_epoll_add(handle, fd1, EPOLLIN, timer_cb1, (void*)1, NULL, NULL);
+    fd2 = wm_epoll_timer_open(2000, 2000);
+    wm_epoll_add(handle, fd2, EPOLLIN, timer_cb2, (void*)2, NULL, NULL);
+    while (gs32EpRun1)
+    {
+        wm_epoll_wait(handle, 500);
+    }
+    wm_epoll_destroy(handle);
+
+    printf("%s quit....\n", __func__);
+    return NULL;
+}
+
+static void *thread_ep2(void *pArg)
+{
+    wm_handle_t handle;
+    int fd1, fd2;
+
+    printf("%s enter....\n", __func__);
+
+    wm_epoll_create(&handle, 1024);
+    fd1 = wm_epoll_timer_open(3000, 1000);
+    wm_epoll_add(handle, fd1, EPOLLIN, timer_cb1, (void*)111, NULL, NULL);
+    fd2 = wm_epoll_timer_open(2000, 2000);
+    wm_epoll_add(handle, fd2, EPOLLIN, timer_cb2, (void*)222, NULL, NULL);
+    while (gs32EpRun2)
+    {
+        wm_epoll_wait(handle, -1);
+    }
+    wm_epoll_destroy(handle);
+
+    printf("%s quit....\n", __func__);
+    return NULL;
+}
+
+static void sample_epoll_timer_start(void)
+{
+    if (gs32EpInit)
+        return;
+
+    gs32EpRun1 = 1;
+    pthread_create(&ep_th1, NULL, thread_ep1, NULL);
+    gs32EpRun2 = 1;
+    pthread_create(&ep_th2, NULL, thread_ep2, NULL);
+    gs32EpInit =1;
+}
+
+static void sample_epoll_timer_stop(void)
+{
+    if (!gs32EpInit)
+        return;
+
+    gs32EpRun1 = 0;
+    gs32EpRun2 = 0;
+    pthread_join(ep_th1, NULL);
+    ep_th1 = 0;
+    pthread_join(ep_th2, NULL);
+    ep_th2 = 0;
+}
+
 
 
 static void printUsage(void)
@@ -304,6 +399,8 @@ static void printUsage(void)
     printf("    input 4 :sem stop\n");
     printf("    input 5 :evt rw start\n");
     printf("    input 6 :evt rw stop\n");
+    printf("    input 7 :epoll timer start\n");
+    printf("    input 8 :epoll timer stop\n");
     printf("    input q :quit.\n");
 }
 
@@ -340,6 +437,12 @@ int main(int argc, char *argv[])
                 break;
             case '6':
                 sample_evt_rw_stop();
+                break;
+            case '7':
+                sample_epoll_timer_start();
+                break;
+            case '8':
+                sample_epoll_timer_stop();
                 break;
             case 'q':
                 isQuit = 1;

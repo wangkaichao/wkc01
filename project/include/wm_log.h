@@ -35,9 +35,17 @@ do {                                            \
     }                                           \
 } while (0)
 
+#define CHK_ARG_GT(val, here)                   \
+do {                                            \
+    if ((val)) {                                \
+        LOGE("%s %d: Invalid Parameter", __func__, __LINE__); \
+        goto here;                              \
+    }                                           \
+} while (0)
+
 #define CHK_FUN(func, ret)                      \
 do {                                            \
-    ret = func;                             \
+    ret = func;                                 \
     if (ret != 0) {                             \
         LOGE("%s %d: %s failed %d(%#x)", __func__, __LINE__, #func, ret, ret); \
     }                                           \
