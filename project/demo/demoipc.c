@@ -135,7 +135,7 @@ static void *thread_evt_r1(void *pArg)
     printf("%s enter....\n", __func__);
     while (gs32EvtR1)
     {
-        rc = evt_rd_wait(evt_rw_handle, 0);
+        rc = evt_rd_wait(evt_rw_handle, 100);
         if (rc == 0)
         {
             printf("%s\n", __func__);
@@ -153,7 +153,7 @@ static void *thread_evt_r2(void *pArg)
 
     while (gs32EvtR2)
     {
-        rc = evt_rd_wait(evt_rw_handle, -1);
+        rc = evt_rd_wait(evt_rw_handle, 100);
         if (rc == 0)
         {
             printf("%s\n", __func__);
@@ -169,7 +169,7 @@ static void sample_evt_rw_start(void)
     if (evt_rw_handle)
         return;
 
-    evt_create(&evt_rw_handle, 0, 1);
+    evt_rw_create(&evt_rw_handle, 0, 1);
 
     gs32EvtW = 1;
     pthread_create(&evt_w, NULL, thread_evt_w, NULL);
@@ -193,7 +193,7 @@ static void sample_evt_rw_stop(void)
     evt_r1 = 0;
     pthread_join(evt_r2, NULL);
     evt_r2 = 0;
-    evt_destroy(evt_rw_handle);
+    evt_rw_destroy(evt_rw_handle);
     evt_rw_handle = 0;
 }
 
