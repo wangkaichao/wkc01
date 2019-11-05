@@ -153,7 +153,7 @@ static void *thread_evt_r2(void *pArg)
 
     while (gs32EvtR2)
     {
-        rc = evt_rd_wait(evt_rw_handle, 100);
+        rc = evt_rd_wait(evt_rw_handle, 0);
         if (rc == 0)
         {
             printf("%s\n", __func__);
