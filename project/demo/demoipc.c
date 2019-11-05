@@ -84,7 +84,7 @@ static void* thread_V(void* pArg)
 
 static void sample_evt_start(void)
 {
-    evt_create(&hHandle, 0, 1);
+    evt_mtx_create(&hHandle, 0, 1);
 
     gs32Run = 1;
     pthread_create(&thId, NULL, thread_fun, NULL);
@@ -102,7 +102,7 @@ static void sample_evt_stop(void)
     pthread_join(thId, NULL);
     pthread_join(thIdP, NULL);
     pthread_join(thIdV, NULL);
-    evt_destroy(hHandle);
+    evt_mtx_destroy(hHandle);
 }
 
 //---------------------------------------------------------------------
@@ -131,11 +131,16 @@ static void *thread_evt_w(void *pArg)
 static void *thread_evt_r1(void *pArg)
 {
     int rc = -1;
+    int mis = 100;
 
     printf("%s enter....\n", __func__);
+        
+    if (mis == 0)
+        evt_rd_reset(evt_rw_handle);
+
     while (gs32EvtR1)
     {
-        rc = evt_rd_wait(evt_rw_handle, 100);
+        rc = evt_rd_wait(evt_rw_handle, mis);
         if (rc == 0)
         {
             printf("%s\n", __func__);
@@ -149,16 +154,21 @@ static void *thread_evt_r1(void *pArg)
 static void *thread_evt_r2(void *pArg)
 {
     int rc = -1;
+    int mis = 0;
+
     printf("%s enter....\n", __func__);
+
+    if (mis == 0)
+        evt_rd_reset(evt_rw_handle);
 
     while (gs32EvtR2)
     {
-        rc = evt_rd_wait(evt_rw_handle, 0);
+        rc = evt_rd_wait(evt_rw_handle, mis);
         if (rc == 0)
         {
             printf("%s\n", __func__);
         }
-   }
+    }
 
     printf("%s quit....\n", __func__);
     return NULL;
