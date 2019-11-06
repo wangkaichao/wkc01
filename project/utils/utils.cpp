@@ -10,7 +10,7 @@
 
 #include "utils.hpp"
 #include "exception.hpp"
-#include "clog.h"
+#include "wm_log.h"
 
 using namespace std;
 
@@ -143,13 +143,13 @@ void common::getDateTime(struct tm *ptm)
 			return -1;
 
 	tzset();
-	printf("daylight:%d, timezone:%ld, tzname[0]:%s\n",
+	LOGD("daylight:%d, timezone:%ld, tzname[0]:%s\n",
 			daylight, timezone / 3600, tzname[0]);*/
 
 	int ret = clock_gettime(CLOCK_REALTIME, &spec);
 
 	if (ret != 0) {
-		log_dbg("%m\n", errno);
+		LOGE("%m");
 		THROW(ERR_TIME);
 	}
 
@@ -178,3 +178,4 @@ void common::getBuildDateTime(string &date, string &time)
     sprintf(buf.data(), "%s", __TIME__); //"10:59:19"
     time = string(buf.data());
 }
+

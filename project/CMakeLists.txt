@@ -19,7 +19,6 @@ execute_process(COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/lib)
 include_directories(${PROJECT_SOURCE_DIR}/3rd/md5-cc/include)
 include_directories(${PROJECT_SOURCE_DIR}/3rd/sqlite/sqlite-amalgamation-3260000)
 include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR}/log)
 include_directories(${PROJECT_SOURCE_DIR}/utils)
 include_directories(${PROJECT_SOURCE_DIR}/ipc)
 
@@ -60,19 +59,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 ######################### lib ######################################
-aux_source_directory(${PROJECT_SOURCE_DIR}/log LOG_SRC)
-if(USE_SHARED)
-    add_library(log_share SHARED ${LOG_SRC})
-    set_target_properties(log_share PROPERTIES OUTPUT_NAME "log")
-    set_target_properties(log_share PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-    #target_link_libraries(log_share )
-else()
-    add_library(log_static STATIC ${LOG_SRC})
-    set_target_properties(log_static PROPERTIES OUTPUT_NAME "log")
-    set_target_properties(log_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-    #target_link_libraries(log_static )
-endif()
-
 aux_source_directory(${PROJECT_SOURCE_DIR}/utils UTILS_SRC)
 if(USE_SHARED)
     add_library(utils_share SHARED ${UTILS_SRC})
@@ -110,8 +96,6 @@ else()
 endif()
 set_target_properties(demolog_exe PROPERTIES OUTPUT_NAME "demolog")
 set_target_properties(demolog_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-target_link_libraries(demolog_exe log)
-
 
 set(DEMOIPC_SRC ${PROJECT_SOURCE_DIR}/demo/demoipc.c)
 # target execute
@@ -125,15 +109,3 @@ set_target_properties(demoipc_exe PROPERTIES OUTPUT_NAME "demoipc")
 set_target_properties(demoipc_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 target_link_libraries(demoipc_exe ipc)
 
-
-aux_source_directory(${PROJECT_SOURCE_DIR}/logcat LOGCAT_SRC)
-# target execute
-add_executable(logcat_exe ${LOGCAT_SRC})
-if(USE_SHARED)
-    add_dependencies(logcat_exe log_share utils_share)
-else()
-    add_dependencies(logcat_exe log_static utils_share)
-endif()
-set_target_properties(logcat_exe PROPERTIES OUTPUT_NAME "logcat")
-set_target_properties(logcat_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-target_link_libraries(logcat_exe log utils)

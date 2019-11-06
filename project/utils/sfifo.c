@@ -6,14 +6,14 @@
 #include <string.h>
 
 #include "sfifo.h"
-#include "clog.h"
+#include "wm_log.h"
 
 sfifo_t *sfifo_init(uint8_t *buffer, uint32_t size)
 {
     sfifo_t *fifo;
     fifo = malloc(sizeof(sfifo_t));
     if (!fifo) {
-        log_err("malloc err:%m\n");
+        LOGE("malloc err:%m\n");
         return NULL;
     }
 
@@ -31,7 +31,7 @@ sfifo_t *sfifo_alloc(uint32_t size)
 
     buffer = malloc(size);
     if (!buffer) {
-        log_err("malloc err:%m\n");
+        LOGE("malloc err:%m\n");
         return NULL;
     }
 

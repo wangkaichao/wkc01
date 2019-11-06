@@ -1,6 +1,6 @@
 #include <thread>
 #include "list_r.hpp"
-#include "clog.h"
+#include "wm_log.h"
 
 #if 1
 static void push_func(int id, void *param)
@@ -17,14 +17,15 @@ static void pop_func(void *param)
 		list_r<int>* l = (list_r<int>*)param;
 		auto val = l->find_first_if([cnt](int const& id) {return id == cnt;});
 		cnt++;
-		log_dbg("val:%d\n", *val);
+		LOGD("val:%d\n", *val);
 	}
 }
 #endif
 
 int main()
 {
-	log_dbg("run ...\n");
+    LOG_OPEN("demo");
+	LOGD("run ...\n");
 
 	list_r<int> l; 
 

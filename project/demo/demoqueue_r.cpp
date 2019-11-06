@@ -1,6 +1,8 @@
 #include <thread>
 #include "queue_r.hpp"
-#include "clog.h"
+#include "wm_log.h"
+
+#define TAG "demoqueue_r"
 
 #if 1
 static void push_func(int id, void *param)
@@ -17,14 +19,15 @@ static void pop_func(void *param)
 		queue_r<int>* q = (queue_r<int>*)param;
 		auto val = q->wait_pop();
 		cnt++;
-		log_dbg("val:%d\n", *val);
+		LOGD("val:%d\n", *val);
 	}
 }
 #endif
 
 int main()
 {
-	log_dbg("run ...\n");
+    LOG_OPEN("demo");
+	LOGD("run ...\n");
 
 	queue_r<int> q; 
 

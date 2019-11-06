@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include "wm_epoll.h"
 #include "list.h"
+#include "wm_type.h"
 #include "wm_log.h"
 
 typedef struct wm_epoll {

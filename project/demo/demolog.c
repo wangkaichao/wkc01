@@ -2,7 +2,12 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include "clog.h"
+#include "wm_log.h"
+
+#ifdef TAG
+#undef TAG
+#define TAG "demolog"
+#endif
 
 static pthread_t th_handle[20]; 
 
@@ -12,7 +17,7 @@ static void *thread_fun(void *param)
     pthread_detach(pthread_self());
     
     while (1) {
-        log_dbg("~~~~~~~~~~~~~~id:%u\n", id);
+        LOGD("~~~~~~~~~~~~~~id:%ld\n", id);
         usleep(100*1000);
     }
 
@@ -21,6 +26,8 @@ static void *thread_fun(void *param)
 
 int main()
 {
+    LOG_OPEN("demo");
+
     for (long i = 0; i < 20; i++) {
         pthread_create(&th_handle[i], NULL, thread_fun, (void *)i);
     }

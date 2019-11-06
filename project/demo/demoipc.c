@@ -9,6 +9,12 @@
 #include "evt.h"
 #include "wm_sem.h"
 #include "wm_epoll.h"
+#include "wm_log.h"
+
+#ifdef TAG
+#undef TAG
+#define TAG "demoipc"
+#endif
 
 static int gs32Run = 0;
 static int gs32RunP = 0;
@@ -25,26 +31,26 @@ static void* thread_fun(void* pArg)
 
     //pthread_detach(pthread_self());
 
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
 
     while (gs32Run)
     {
         clock_gettime(CLOCK_REALTIME, &ts);
-        printf("%s~~~:%ld-%lu\n", __func__, ts.tv_sec, ts.tv_nsec);
+        LOGD("~~~:%ld-%lu", ts.tv_sec, ts.tv_nsec);
 
         ts.tv_sec  -= 60; 
         ts.tv_nsec = 0;
         int ret = clock_settime(CLOCK_REALTIME, &ts);
         if (ret != 0)
         {
-            perror("set time error");
+            LOGD("set time error. %m");
             exit(EXIT_FAILURE);
         }
 
         usleep(1000 * 1000);
     }
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -52,7 +58,7 @@ static void* thread_P(void* pArg)
 {
     //pthread_detach(pthread_self());
 
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
 
     while (gs32RunP)
     {
@@ -60,7 +66,7 @@ static void* thread_P(void* pArg)
         usleep(3000 * 1000);
     }
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -70,15 +76,15 @@ static void* thread_V(void* pArg)
 
     //pthread_detach(pthread_self());
 
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
 
     while (gs32RunV)
     {
         rc = evt_mtx_wait(hHandle, 1000);
-        printf("%s %d~~~~~~~ret:%d\n", __func__, __LINE__, rc);
+        LOGD("%d~~~~~~~ret:%d", __LINE__, rc);
     }
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -114,17 +120,17 @@ static wm_handle_t evt_rw_handle;
 static void *thread_evt_w(void *pArg)
 {
     int cnt = 10;
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
 
     while (gs32EvtW && cnt > 0)
     {
         evt_wr_broadcast(evt_rw_handle);
-        printf("%s ~~~~~~~~~~~~~~~~~~~[%d]\n", __func__, cnt);
+        LOGD("~~~~~~~~~~~~~~~~~~~[%d]", cnt);
         cnt--;
         usleep(500*1000);
     }
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -133,7 +139,7 @@ static void *thread_evt_r1(void *pArg)
     int rc = -1;
     int mis = 100;
 
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
         
     if (mis == 0)
         evt_rd_reset(evt_rw_handle);
@@ -143,11 +149,11 @@ static void *thread_evt_r1(void *pArg)
         rc = evt_rd_wait(evt_rw_handle, mis);
         if (rc == 0)
         {
-            printf("%s\n", __func__);
+            LOGD("ok");
         }
     }
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -156,7 +162,7 @@ static void *thread_evt_r2(void *pArg)
     int rc = -1;
     int mis = 0;
 
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
 
     if (mis == 0)
         evt_rd_reset(evt_rw_handle);
@@ -166,11 +172,11 @@ static void *thread_evt_r2(void *pArg)
         rc = evt_rd_wait(evt_rw_handle, mis);
         if (rc == 0)
         {
-            printf("%s\n", __func__);
+            LOGD("ok");
         }
     }
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -216,18 +222,18 @@ static wm_handle_t sem_handle;
 static void *thread_sem_p(void *pArg)
 {
     int cnt = 10;
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
 
     while (gs32SemP && cnt > 0)
     {
         //wm_sem_post(sem_handle);
         wm_sem_broadcast(sem_handle, 2);
-        printf("%s ~~~~~~~~~~~~~~~~~~~[%d]\n", __func__, cnt);
+        LOGD("~~~~~~~~~~~~~~~~~~~[%d]", cnt);
         cnt--;
         usleep(1000*1000);
     }
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -235,7 +241,7 @@ static void *thread_sem_v1(void *pArg)
 {
     int rc = -1;
     int cnt = 0;
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
 
     while (gs32SemV1)
     {
@@ -243,11 +249,11 @@ static void *thread_sem_v1(void *pArg)
         if (rc == 0)
         {
             wm_sem_getvalue(sem_handle, &cnt);
-            printf("%s %d\n", __func__, cnt);
+            LOGD("%d", cnt);
         }
     }
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -255,7 +261,7 @@ static void *thread_sem_v2(void *pArg)
 {
     int rc = -1;
     int cnt = 0;
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
 
     while (gs32SemV2)
     {
@@ -263,11 +269,11 @@ static void *thread_sem_v2(void *pArg)
         if (rc == 0)
         {
             wm_sem_getvalue(sem_handle, &cnt);
-            printf("%s %d\n", __func__, cnt);
+            LOGD("%d", cnt);
         }
    }
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -314,7 +320,7 @@ static void *timer_cb1(int fd, void *pArg)
 	int len;
 
 	len = read(fd, &expires, sizeof(expires));
-    printf("%s %ld\n", __func__, (long)pArg);
+    LOGD("%ld", (long)pArg);
     return NULL;
 }
 
@@ -324,7 +330,7 @@ static void *timer_cb2(int fd, void *pArg)
 	int len;
 
 	len = read(fd, &expires, sizeof(expires));
-    printf("%s %ld\n", __func__, (long)pArg);
+    LOGD("%ld", (long)pArg);
     return NULL;
 }
 
@@ -333,7 +339,7 @@ static void *thread_ep1(void *pArg)
     wm_handle_t handle;
     int fd1, fd2;
 
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
 
     wm_epoll_create(&handle, 1024);
     fd1 = wm_epoll_timer_open(3000, 1000);
@@ -346,7 +352,7 @@ static void *thread_ep1(void *pArg)
     }
     wm_epoll_destroy(handle);
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -355,7 +361,7 @@ static void *thread_ep2(void *pArg)
     wm_handle_t handle;
     int fd1, fd2;
 
-    printf("%s enter....\n", __func__);
+    LOGD("enter....");
 
     wm_epoll_create(&handle, 1024);
     fd1 = wm_epoll_timer_open(3000, 1000);
@@ -368,7 +374,7 @@ static void *thread_ep2(void *pArg)
     }
     wm_epoll_destroy(handle);
 
-    printf("%s quit....\n", __func__);
+    LOGD("quit....");
     return NULL;
 }
 
@@ -401,17 +407,17 @@ static void sample_epoll_timer_stop(void)
 
 static void printUsage(void)
 {
-    printf("Usage:\n");
-    printf("    input ? :print usage\n");
-    printf("    input 1 :evt start\n");
-    printf("    input 2 :evt stop\n");
-    printf("    input 3 :sem start\n");
-    printf("    input 4 :sem stop\n");
-    printf("    input 5 :evt rw start\n");
-    printf("    input 6 :evt rw stop\n");
-    printf("    input 7 :epoll timer start\n");
-    printf("    input 8 :epoll timer stop\n");
-    printf("    input q :quit.\n");
+    LOGD("Usage:");
+    LOGD("    input ? :print usage");
+    LOGD("    input 1 :evt start");
+    LOGD("    input 2 :evt stop");
+    LOGD("    input 3 :sem start");
+    LOGD("    input 4 :sem stop");
+    LOGD("    input 5 :evt rw start");
+    LOGD("    input 6 :evt rw stop");
+    LOGD("    input 7 :epoll timer start");
+    LOGD("    input 8 :epoll timer stop");
+    LOGD("    input q :quit.");
 }
 
 int main(int argc, char *argv[])
@@ -419,6 +425,7 @@ int main(int argc, char *argv[])
     char as8Buff[256]; 
     int isQuit = 0;
 
+    LOG_OPEN("demo");
     printUsage();
 
     do
