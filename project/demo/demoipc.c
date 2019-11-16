@@ -380,19 +380,20 @@ static void *thread_ep2(void *pArg)
 
 static void sample_epoll_timer_start(void)
 {
-    if (gs32EpInit)
+    /*if (gs32EpInit)
         return;
 
     gs32EpRun1 = 1;
     pthread_create(&ep_th1, NULL, thread_ep1, NULL);
     gs32EpRun2 = 1;
     pthread_create(&ep_th2, NULL, thread_ep2, NULL);
-    gs32EpInit =1;
+    gs32EpInit =1;*/
+    wm_epoll_start();
 }
 
 static void sample_epoll_timer_stop(void)
 {
-    if (!gs32EpInit)
+    /*if (!gs32EpInit)
         return;
 
     gs32EpRun1 = 0;
@@ -400,7 +401,8 @@ static void sample_epoll_timer_stop(void)
     pthread_join(ep_th1, NULL);
     ep_th1 = 0;
     pthread_join(ep_th2, NULL);
-    ep_th2 = 0;
+    ep_th2 = 0;*/
+    wm_epoll_stop();
 }
 
 
