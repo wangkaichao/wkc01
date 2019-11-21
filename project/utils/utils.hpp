@@ -65,6 +65,18 @@ namespace common {
 	 */
 	std::string getDateTime();
 
+    /**
+     * @brief tz=tzn[+|-]hh[:mm[:ss]][dzn]
+     * 其实tzn和dzn可为任意3个字母，只要中间的时差设置正确，localtime（）和gmtime（）函数调用都会处理正确。要注意一点，比如要将时区TZ设置为中国所在的东八区（即UTC+8:00）
+
+     * daylight  如果在TZ设置中指定夏令时时区       1则为非0值;否则为0
+     * timezone  UTC和本地时间之间的时差,单位为秒   28800(28800秒等于8小时)
+     * tzname[0] TZ环境变量的时区名称的字符串值     如果TZ未设置则为空 PST
+     * tzname[1] 夏令时时区的字符串值;              如果TZ环境变量中忽略夏令时时区则为空。
+     * @param tz=tzn[+|-]hh[:mm[:ss]][dzn]
+     */
+    void setZone(std::string &tz);
+
 	/*
 	 * @brief get date-time
 	 * @param[out] ptm

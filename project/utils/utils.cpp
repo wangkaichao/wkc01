@@ -2,15 +2,16 @@
 * utils.cpp
 * wangkaichao2@163.com 2018-10-12
 */
-#include <md5.hh>
+#include <time.h>
 #include <errno.h>
 #include <string.h>
 #include <sstream>
 #include <array>
 
-#include "utils.hpp"
-#include "exception.hpp"
 #include "wm_log.h"
+#include "utils.hpp"
+#include "md5.hh"
+#include "exception.hpp"
 
 using namespace std;
 
@@ -136,16 +137,6 @@ string common::getDateTime()
 void common::getDateTime(struct tm *ptm)
 {
 	struct timespec spec;
-
-	/*if (setenv("TZ", "GMT-8", 1) == -1)
-	if (setenv("TZ", "CST-8", 1) == -1)
-	if (putenv("TZ=CST") == -1)
-			return -1;
-
-	tzset();
-	LOGD("daylight:%d, timezone:%ld, tzname[0]:%s\n",
-			daylight, timezone / 3600, tzname[0]);*/
-
 	int ret = clock_gettime(CLOCK_REALTIME, &spec);
 
 	if (ret != 0) {
@@ -154,6 +145,17 @@ void common::getDateTime(struct tm *ptm)
 	}
 
 	localtime_r(&spec.tv_sec, ptm);
+}
+
+void common::setZone(string &tz)
+{
+	if (setenv("TZ", tz.c_str(), 1) == -1) {
+        LOGE("%m");
+    }
+
+	tzset();
+	LOGD("daylight:%d, timezone:%ld, tzname[0]:%s",
+        daylight, timezone / 3600, tzname[0]);
 }
 
 void common::getBuildDateTime(string &date, string &time)
