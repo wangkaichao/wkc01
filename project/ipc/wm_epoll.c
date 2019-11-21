@@ -1,28 +1,42 @@
 #include <pthread.h>
+#include <sys/prctl.h>
 #include <sys/epoll.h>
 #include <sys/timerfd.h>
 #include <sys/signalfd.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
+
 #include "wm_epoll.h"
 #include "list.h"
 #include "wm_type.h"
 #include "wm_log.h"
+#include "evt.h"
 
 typedef struct wm_epoll {
-    int     fd; 
-    struct list_head head;
+    int                 fd; 
+    struct list_head    head;
 } wm_epoll_t;
 
 typedef struct wm_event {
-    int         fd;
-    wm_pfn_t    pfn_event;
-    void *      parg1;
-    wm_pfn_t    pfn_exit;
-    void *      parg2;
-    struct list_head node;
+    int                 fd;
+    wm_pfn_t            pfn_event;
+    void *              parg1;
+    wm_pfn_t            pfn_exit;
+    void *              parg2;
+    struct list_head    node;
 } wm_event_t;
+
+typedef struct wm_ins {
+    int             loop;
+    pthread_t       thr_id;
+    wm_handle_t     handle;
+    int             idle_fd;
+    wm_handle_t     evt_handle;
+} wm_ins_t;
+
+static wm_ins_t gstIns;
 
 int wm_epoll_create(wm_handle_t *pHandle, int size)
 {
@@ -121,7 +135,6 @@ int wm_epoll_modify(wm_handle_t handle, int fd, uint32_t events)
             return 0;
         }
     }
-
    return -1;
 }
 
@@ -132,25 +145,18 @@ int wm_epoll_remove(wm_handle_t handle, int fd)
     wm_event_t *pos, *n;
 
     CHK_ARG_RE(!p, -1);
-    list_for_each_entry_safe(pos, n, &p->head, node)
-    {
-        if (pos->fd == fd)
-        {
+    list_for_each_entry_safe(pos, n, &p->head, node) {
+        if (pos->fd == fd) {
             list_del(&pos->node);
             CHK_FUN(epoll_ctl(p->fd, EPOLL_CTL_DEL, pos->fd, NULL), ret);   
             if (pos->pfn_exit)
-            {
                 pos->pfn_exit(pos->fd, pos->parg2);
-            }
             else
-            {
                 CHK_FUN(close(pos->fd), ret);
-            }
             free(pos);
             return 0;
         }
     }
-
    return -1;
 }
 
@@ -170,7 +176,6 @@ int wm_epoll_wait(wm_handle_t handle, unsigned long ulMilsecond)
 		pe = (wm_event_t *)ep[i].data.ptr;
         pe->pfn_event(pe->fd, pe->parg1);
 	}
-
 	return 0;
 }
 
@@ -210,4 +215,55 @@ int wm_epoll_signal_open(int sig_num)
     return fd;
 }
 
+static void *idle_cb(int fd, void *pArg)
+{
+    uint64_t expires; read(fd, &expires, sizeof(expires));
+    
+    LOGD("%ld", (long)pArg);
+    return NULL;
+}
+
+static void *ep_thread(void *pArg)
+{
+    wm_ins_t *p = (wm_ins_t *)pArg;
+
+    prctl(PR_SET_NAME, __func__);
+    wm_epoll_create(&p->handle, 1024);
+    p->idle_fd = wm_epoll_timer_open(100, 3000);
+    wm_epoll_add(p->handle, p->idle_fd, EPOLLIN, idle_cb, NULL, NULL, NULL);
+    evt_mtx_signal(p->evt_handle);
+    while (p->loop)
+        wm_epoll_wait(p->handle, -1);
+    wm_epoll_destroy(p->handle);
+    LOGD("quit....");
+    return NULL;
+}
+
+int wm_epoll_start(void)
+{
+    if (gstIns.loop) return 0;
+    gstIns.loop = 1;
+    evt_mtx_create(&gstIns.evt_handle, 0, 1);
+    pthread_create(&gstIns.thr_id, NULL, ep_thread, &gstIns);
+    evt_mtx_wait(gstIns.evt_handle, -1);
+    evt_mtx_destroy(gstIns.evt_handle);
+    return 0;
+}
+
+int wm_epoll_stop(void)
+{
+    if (!gstIns.loop) return 0;
+    gstIns.loop = 0;
+    wm_epoll_timer_set(gstIns.idle_fd, 10, 10);
+    pthread_join(gstIns.thr_id, NULL);
+    memset(&gstIns, 0, sizeof(gstIns));
+    return 0;
+}
+
+int wm_epoll_handle(wm_handle_t *phandle)
+{
+    CHK_ARG_RE(!phandle || !gstIns.loop, -1);
+    *phandle = gstIns.handle;
+    return 0;
+}
 
