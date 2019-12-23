@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 #include "wm_epoll.h"
 #include "list.h"
@@ -70,10 +71,8 @@ int wm_epoll_destroy(wm_handle_t handle)
         {
             pos->pfn_exit(pos->fd, pos->parg2);
         }
-        else
-        {
-            CHK_FUN(close(pos->fd), ret);
-        }
+
+        CHK_FUN(close(pos->fd), ret);
         free(pos);
     }
 
@@ -89,6 +88,7 @@ int wm_epoll_add(wm_handle_t handle, int fd, uint32_t events,
 	struct epoll_event ep;
     wm_event_t *pe = NULL;
     wm_epoll_t *p = (wm_epoll_t *)handle;
+    int ret;
 
     CHK_ARG_RE(!p || !pevent, -1);
 	pe = (wm_event_t *)calloc(1, sizeof(wm_event_t));
@@ -107,13 +107,22 @@ int wm_epoll_add(wm_handle_t handle, int fd, uint32_t events,
 	//EPOLL_CTL_ADD：注册新的fd到epfd中；
 	//EPOLL_CTL_MOD：修改已经注册的fd的监听事件；
 	//EPOLL_CTL_DEL：从epfd中删除一个fd；
-	CHK_FUN_GT(epoll_ctl(p->fd, EPOLL_CTL_ADD, pe->fd, &ep), ERR0);
-    list_add(&pe->node, &p->head);
-    return 0;
+    if (epoll_ctl(p->fd, EPOLL_CTL_ADD, pe->fd, &ep) != 0)
+    {
+        free(pe);
+        ret = (errno != EEXIST ? -1 : 0);
+    }
+    else
+    {
+        list_add(&pe->node, &p->head);
+        ret = 0;
+    }
 
-ERR0:
-    free(pe);
-    return -1;
+    if (ret)
+    {
+        LOGE("%m");
+    }
+    return ret;
 }
 
 int wm_epoll_modify(wm_handle_t handle, int fd, uint32_t events)
@@ -135,7 +144,7 @@ int wm_epoll_modify(wm_handle_t handle, int fd, uint32_t events)
             return 0;
         }
     }
-   return -1;
+    return -1;
 }
 
 int wm_epoll_remove(wm_handle_t handle, int fd)
@@ -151,13 +160,11 @@ int wm_epoll_remove(wm_handle_t handle, int fd)
             CHK_FUN(epoll_ctl(p->fd, EPOLL_CTL_DEL, pos->fd, NULL), ret);   
             if (pos->pfn_exit)
                 pos->pfn_exit(pos->fd, pos->parg2);
-            else
-                CHK_FUN(close(pos->fd), ret);
             free(pos);
-            return 0;
+            break;
         }
     }
-   return -1;
+    return 0;
 }
 
 int wm_epoll_wait(wm_handle_t handle, unsigned long ulMilsecond)
@@ -219,7 +226,7 @@ static void *idle_cb(int fd, void *pArg)
 {
     uint64_t expires; read(fd, &expires, sizeof(expires));
     
-    LOGD("%ld", (long)pArg);
+    //LOGD("%ld", (long)pArg);
     return NULL;
 }
 
