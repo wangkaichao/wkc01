@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <fcntl.h>           /* For O_* constants */
+#include <sys/stat.h>        /* For mode constants */
+#include <mqueue.h>
 
 #include "evt.h"
 #include "wm_sem.h"
@@ -312,6 +315,7 @@ static void sample_sem_stop(void)
 
 //------------------------------------------------------------
 static int fd1 = -1;
+static int fd2 = -1;
 
 static void *timer_cb1(int fd, void *pArg)
 {
@@ -332,7 +336,6 @@ static void *timer_cb2(int fd, void *pArg)
     LOGD("%ld", (long)pArg);
     return NULL;
 }
-
 
 static void sample_epoll_timer_start(void)
 {
@@ -356,6 +359,48 @@ static void sample_epoll_timer_stop(void)
     wm_epoll_remove(handle, fd1);
 }
 
+static void *queue_cb(int fd, void *pArg)
+{
+    int size;
+    char ptr[50] = {0};
+    size = mq_receive(fd, ptr, sizeof(ptr), NULL);
+    LOGD("msg:%s, size:%d", ptr, size);
+}
+
+static void sample_epoll_queue_open(void)
+{
+    wm_handle_t handle;
+
+    fd2 = wm_epoll_queue_open("/test1", O_CREAT | O_RDWR | O_NONBLOCK, 0, 100, 50);
+    if (fd2 < 0)
+        return;
+    wm_epoll_handle(&handle);
+    wm_epoll_add(handle, fd2, EPOLLIN, queue_cb, NULL, NULL, NULL);
+    LOGD("queue open");
+}
+
+static void sample_epoll_queue_close(void)
+{
+    wm_handle_t handle = NULL;
+
+    if (fd2 < 0)
+        return;
+    wm_epoll_handle(&handle);
+    wm_epoll_remove(handle, fd2);
+    LOGD("queue close");
+}
+
+static void sample_epoll_queue_send(void)
+{
+    static int cnt = 0;
+    static char ptr[50];
+
+    if (fd2 < 0)
+       return;
+    snprintf(ptr, sizeof(ptr), "I'm msg[%d]", cnt++);
+    mq_send(fd2, ptr, strlen(ptr), 0);
+}
+
 static void printUsage(void)
 {
     LOGD("Usage:");
@@ -368,6 +413,9 @@ static void printUsage(void)
     LOGD("    input 6 :evt rw stop");
     LOGD("    input 7 :epoll timer start");
     LOGD("    input 8 :epoll timer stop");
+    LOGD("    input 9 :msg open");
+    LOGD("    input a :msg close");
+    LOGD("    input b :msg send");
     LOGD("    input q :quit.");
 }
 
@@ -375,12 +423,12 @@ int main(int argc, char *argv[])
 {
     char as8Buff[256]; 
     int isQuit = 0;
+    int fd;
 
     LOG_OPEN("demo");
     printUsage();
 
     wm_epoll_start();
-
     do
     {
         fgets(as8Buff, sizeof(as8Buff), stdin);
@@ -413,6 +461,15 @@ int main(int argc, char *argv[])
                 break;
             case '8':
                 sample_epoll_timer_stop();
+                break;
+            case '9':
+                sample_epoll_queue_open();
+                break;
+            case 'a':
+                sample_epoll_queue_close();
+                break;
+            case 'b':
+                sample_epoll_queue_send();
                 break;
             case 'q':
                 isQuit = 1;

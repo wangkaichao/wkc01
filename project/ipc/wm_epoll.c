@@ -3,6 +3,9 @@
 #include <sys/epoll.h>
 #include <sys/timerfd.h>
 #include <sys/signalfd.h>
+#include <fcntl.h>           /* For O_* constants */
+#include <sys/stat.h>        /* For mode constants */
+#include <mqueue.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -219,6 +222,27 @@ int wm_epoll_signal_open(int sig_num)
 	fd = signalfd(-1, &mask, 0);
     CHK_ARG_RE(fd == -1, -1);
 	sigprocmask(SIG_BLOCK, &mask, NULL);
+    return fd;
+}
+
+int wm_epoll_queue_open(const char *ps8Name, int flag, int mode, int maxmsg, int msgsize)
+{
+    mqd_t fd;
+    struct mq_attr mqattr;
+
+    CHK_ARG_RE(!ps8Name, -1);
+    mq_unlink(ps8Name);
+
+    mqattr.mq_maxmsg = maxmsg;
+    mqattr.mq_msgsize = msgsize;
+    mqattr.mq_flags = 0;
+    mqattr.mq_curmsgs = 0;
+    mqattr.__pad[0] = 0;
+    mqattr.__pad[1] = 0;
+    mqattr.__pad[2] = 0;
+    mqattr.__pad[3] = 0;
+    fd = mq_open(ps8Name, flag, mode, &mqattr);
+    CHK_ARG_RE(fd == -1, -1);
     return fd;
 }
 

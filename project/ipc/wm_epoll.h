@@ -25,6 +25,7 @@ int wm_epoll_wait(wm_handle_t handle, unsigned long ulMilsecond);
 int wm_epoll_timer_open(int ms_delay, int ms_interval);
 int wm_epoll_timer_set(int fd, int ms_delay, int ms_interval);
 int wm_epoll_signal_open(int sig_num);
+int wm_epoll_queue_open(const char *ps8Name, int flag, int mode, int maxmsg, int msgsize);
 
 int wm_epoll_start(void);
 int wm_epoll_stop(void);
