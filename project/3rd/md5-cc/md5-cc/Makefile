@@ -1,6 +1,6 @@
 
 SHELL=/bin/sh
-CC=g++
+CC=g++ -fPIC
 
 md5:		driver.o md5.o
 	$(CC) -o md5 driver.o md5.o
