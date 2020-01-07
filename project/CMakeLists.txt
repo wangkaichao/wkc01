@@ -89,11 +89,6 @@ endif()
 set(DEMOLOG_SRC ${PROJECT_SOURCE_DIR}/demo/demolog.c)
 # target execute
 add_executable(demolog_exe ${DEMOLOG_SRC})
-if(USE_SHARED)
-    add_dependencies(demolog_exe log_share)
-else()
-    add_dependencies(demolog_exe log_static)
-endif()
 set_target_properties(demolog_exe PROPERTIES OUTPUT_NAME "demolog")
 set_target_properties(demolog_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 

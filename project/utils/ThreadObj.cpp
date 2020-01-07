@@ -22,7 +22,7 @@ void ThreadObj::StartThread(const char *name)
         return;
     }
 
-    m_threadName = name ? name : "(unknown)";
+    m_threadName = name ? name : "(Unknown)";
     m_stopRequested = false;
     ThreadObj::AddThreadObj(this);
     m_thread = std::thread([this]() {
@@ -76,7 +76,7 @@ void ThreadObj::DumpThreadObjList(long selection)
     LOGD("------------+-----------+------+---------+-------------------------------------------");
 
     std::lock_guard<std::mutex> lock(gListMtx);
-    for (auto pObj : ThreadObj::gList)
+    for (const auto pObj : ThreadObj::gList)
     {
         if (selection == 0 || selection == (long)pObj->GetPOSIXTid()
                 || selection == (long)pObj->GetTid())
@@ -84,6 +84,7 @@ void ThreadObj::DumpThreadObjList(long selection)
             LOGD("0x%8lx | %9ld | %4d | %7d | %s", (long)pObj->GetPOSIXTid(), (long)pObj->GetTid(), pObj->GetThreadType(), pObj->GetNrOfProcessedMsgs(), pObj->m_threadName.c_str());
         }
     }
+    LOGD("------------+-----------+------+---------+-------------------------------------------");
 }
 
 void ThreadObj::AddThreadObj(ThreadObj *pThreadObj)

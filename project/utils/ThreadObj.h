@@ -43,7 +43,7 @@ private:
     static std::list<ThreadObj *> gList;
     static std::mutex gListMtx;
 
-    std::mutex m_mtx;
+    //std::mutex m_mtx;
     std::thread m_thread;
     pid_t m_tid;
 
