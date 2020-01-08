@@ -35,6 +35,7 @@ int MsgQueue::Open(const char *name, int flag, mode_t mode, long maxmsg)
     mq_unlink(name);
     m_receiveMsgCnt = 0;
     m_sendMsgCnt = 0;
+    m_lastMsgSigName = 0;
 
     m_msgQueueName = name;
     m_maxMsgInQueue = 0;

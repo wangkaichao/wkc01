@@ -115,3 +115,16 @@ endif()
 set_target_properties(demothread_exe PROPERTIES OUTPUT_NAME "demothread")
 set_target_properties(demothread_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 target_link_libraries(demothread_exe utils)
+
+set(DEMOMSGQUEUE_SRC ${PROJECT_SOURCE_DIR}/demo/DemoMsgQueue.cpp)
+# target execute
+add_executable(demomsgqueue_exe ${DEMOMSGQUEUE_SRC})
+if(USE_SHARED)
+    add_dependencies(demomsgqueue_exe utils_share ipc_share)
+else()
+    add_dependencies(demomsgqueue_exe utils_static ipc_static)
+endif()
+set_target_properties(demomsgqueue_exe PROPERTIES OUTPUT_NAME "demomsgqueue")
+set_target_properties(demomsgqueue_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+target_link_libraries(demomsgqueue_exe utils ipc)
+
