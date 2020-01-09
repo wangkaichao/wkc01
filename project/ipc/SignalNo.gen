@@ -1,6 +1,7 @@
 ENUM_OR_STRING(SIG_ID_NULL),                    /* avoid signals with No.0 */
 
 ENUM_OR_STRING(SIG_ID_FIRST_GENERAL_MSG), // ^^ Just an example (delete it later)  
+ENUM_OR_STRING(SIG_ID_STOP_THREAD),
 
 ENUM_OR_STRING(SIG_ID_MAX)
 

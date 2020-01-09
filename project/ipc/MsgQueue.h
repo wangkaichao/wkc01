@@ -41,27 +41,26 @@
  */
 class MsgQueue
 {
-public:
+private:
     mqd_t m_msgQueueFd;
+    std::string m_msgQueueName;
+    bool m_msgQueueNotInUse;
+    long m_msgQueueSize;
+    long m_maxMsgInQueue;
+    fd_set m_rfds;
+    unsigned long m_lastMsgSigName; // for debug
+
     unsigned long m_receiveMsgCnt; // one msg queue
     unsigned long m_sendMsgCnt; // one msg queue
     static unsigned long gReceiveMsgCnt; // all msg queues
     static unsigned long gSendMsgCnt; // all msg queues
-
-private:
-    std::string m_msgQueueName;
-    bool m_msgQueueNotInUse;
-    long m_maxMsgInQueue;
-
-    fd_set m_rfds;
-    unsigned long m_lastMsgSigName; // for debug
 
     static std::unordered_map<mqd_t, MsgQueue *> gMap;
     static std::mutex gMapMtx;
 
 public:
     MsgQueue():m_msgQueueFd(-1), m_msgQueueName(""), 
-        m_msgQueueNotInUse(false), m_maxMsgInQueue(0) {};
+        m_msgQueueNotInUse(false), m_msgQueueSize(0), m_maxMsgInQueue(0) {};
     ~MsgQueue();
 
     /**
@@ -94,7 +93,7 @@ public:
     /**
      * @brief 
      */
-    void ClearQueue();
+    void Clear();
 
     /**
      * @brief 
@@ -112,16 +111,19 @@ public:
      *
      * @param pclsMsg
      * @param s32Prio
+     * @param isPolling
      *
      * @return 
      */
-    int Receive(Mesg *pclsMsg, unsigned int s32Prio = MESG_PRIO_LOW);
-    int ReceiveByPoll(Mesg *pclsMsg, unsigned int s32Prio = MESG_PRIO_LOW);
+    int Receive(Mesg *pclsMsg, unsigned int s32Prio = MESG_PRIO_LOW, bool isPolling = true);
 
+    mqd_t MsgQueueFd() const {return m_msgQueueFd;};
+    long MsgQueueSize() const {return m_msgQueueSize;};
     long CurMsgsInQueue();
     bool MsgQueueNotInUse() const {return m_msgQueueNotInUse;};
     void MsgQueueNotInUse(bool bVal) {m_msgQueueNotInUse = bVal;};
     unsigned long LastMsgSigName() const {return m_lastMsgSigName;};
+    const char *MsgQueueName() const {return m_msgQueueName.c_str();};
 
     static std::string MsgQueueName(mqd_t fd);
     static MsgQueue *MsgQueuePtr(mqd_t fd);

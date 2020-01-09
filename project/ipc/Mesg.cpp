@@ -93,7 +93,7 @@ void Mesg::FreeSignal()
 
 int Mesg::SendMsg(MsgQueue *pclsMsgQueue, int s32Prio)
 {
-    int rc = MsgQueue::Send(pclsMsgQueue->m_msgQueueFd, this, s32Prio);
+    int rc = MsgQueue::Send(pclsMsgQueue->MsgQueueFd(), this, s32Prio);
     if (rc != 0)
     {
         FreeSignal();
@@ -111,15 +111,9 @@ int Mesg::SendMsg(mqd_t fd, int s32Prio)
     return rc;
 }
 
-int Mesg::ReceiveMsg(MsgQueue *pclsMsgQueue, int s32Prio)
+int Mesg::ReceiveMsg(MsgQueue *pclsMsgQueue, int s32Prio, bool isPolling)
 {
-    int rc = pclsMsgQueue->Receive(this);
-    return rc;
-}
-
-int Mesg::ReceiveMsgByPoll(MsgQueue *pclsMsgQueue, int s32Prio)
-{
-    int rc = pclsMsgQueue->ReceiveByPoll(this);
+    int rc = pclsMsgQueue->Receive(this, s32Prio, isPolling);
     return rc;
 }
 

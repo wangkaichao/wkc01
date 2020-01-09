@@ -112,11 +112,11 @@ public:
      *
      * @param pclsMsgQueue
      * @param s32Prio
+     * @param isPolling
      *
      * @return 
      */
-    int ReceiveMsg(MsgQueue *pclsMsgQueue, int s32Prio = MESG_PRIO_LOW);
-    int ReceiveMsgByPoll(MsgQueue *pclsMsgQueue, int s32Prio = MESG_PRIO_LOW);
+    int ReceiveMsg(MsgQueue *pclsMsgQueue, int s32Prio = MESG_PRIO_LOW, bool isPolling = true);
 
     char *MsgAddr() {return (char *)&mMsg;};
     static size_t MsgSize() {return sizeof(MESG_T);};

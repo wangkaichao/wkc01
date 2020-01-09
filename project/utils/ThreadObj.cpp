@@ -11,15 +11,15 @@ std::mutex ThreadObj::gListMtx;
 
 ThreadObj::~ThreadObj()
 {
-    StopThreadAndWait();
+    StopThread(true);
 }
 
-void ThreadObj::StartThread(const char *name)
+int ThreadObj::StartThread(const char *name)
 {
     if (m_thread.joinable())
     {
         LOGW("%s is already running", m_threadName.c_str());
-        return;
+        return 0;
     }
 
     m_threadName = name ? name : "(Unknown)";
@@ -30,41 +30,39 @@ void ThreadObj::StartThread(const char *name)
         m_tid = syscall(SYS_gettid);
 
         LOGD("name:%s thread_id:%#x enter...", m_threadName.c_str(), m_tid);
-        Loop();
+        ThreadFunction();
         LOGD("name:%s thread_id:%#x leave...", m_threadName.c_str(), m_tid);
     });
+    return 0;
 }
 
-void ThreadObj::StopThread()
+void ThreadObj::StopThread(bool isWaiting)
 {
     if (!m_thread.joinable())
         return;
 
     m_stopRequested = true;
-    m_thread.detach();
-    ThreadObj::DelThreadObj(this);
-}
+    if (isWaiting)
+    {
+        m_thread.join();
+    }
+    else
+    {
+        m_thread.detach();
+    }
 
-void ThreadObj::StopThreadAndWait()
-{
-    if (!m_thread.joinable())
-        return;
-
-    m_stopRequested = true;
-    m_thread.join();
     ThreadObj::DelThreadObj(this);
 }
 
 void ThreadObj::StopAllThreads()
 {
     std::lock_guard<std::mutex> lock(gListMtx);
-    std::for_each(ThreadObj::gList.begin(), ThreadObj::gList.end(), 
-        [](ThreadObj *pObj) {
-            if (!pObj->m_thread.joinable())
-                return;
-            pObj->m_stopRequested = true;
-            pObj->m_thread.join();
-        });
+    std::for_each(ThreadObj::gList.begin(), ThreadObj::gList.end(), [](ThreadObj *pObj) {
+        if (!pObj->m_thread.joinable())
+            return;
+        pObj->m_stopRequested = true;
+        pObj->m_thread.join();
+    });
     ThreadObj::gList.clear();
 }
 
@@ -76,12 +74,12 @@ void ThreadObj::DumpThreadObjList(long selection)
     LOGD("------------+-----------+------+---------+-------------------------------------------");
 
     std::lock_guard<std::mutex> lock(gListMtx);
-    for (const auto pObj : ThreadObj::gList)
+    for (const auto pObj : gList)
     {
-        if (selection == 0 || selection == (long)pObj->GetPOSIXTid()
-                || selection == (long)pObj->GetTid())
+        if (selection == 0 || selection == (long)pObj->POSIXTid()
+                || selection == (long)pObj->m_tid)
         {
-            LOGD("0x%8lx | %9ld | %4d | %7d | %s", (long)pObj->GetPOSIXTid(), (long)pObj->GetTid(), pObj->GetThreadType(), pObj->GetNrOfProcessedMsgs(), pObj->m_threadName.c_str());
+            LOGD("0x%8lx | %9ld | %4d | %7d | %s", (long)pObj->POSIXTid(), (long)pObj->m_tid, pObj->ThreadType(), pObj->NrOfProcessedMsgs(), pObj->m_threadName.c_str());
         }
     }
     LOGD("------------+-----------+------+---------+-------------------------------------------");

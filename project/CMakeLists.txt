@@ -108,13 +108,13 @@ set(DEMOTHREAD_SRC ${PROJECT_SOURCE_DIR}/demo/DemoThread.cpp)
 # target execute
 add_executable(demothread_exe ${DEMOTHREAD_SRC})
 if(USE_SHARED)
-    add_dependencies(demothread_exe utils_share)
+    add_dependencies(demothread_exe utils_share ipc_share)
 else()
-    add_dependencies(demothread_exe utils_static)
+    add_dependencies(demothread_exe utils_static ipc_share)
 endif()
 set_target_properties(demothread_exe PROPERTIES OUTPUT_NAME "demothread")
 set_target_properties(demothread_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-target_link_libraries(demothread_exe utils)
+target_link_libraries(demothread_exe utils ipc)
 
 set(DEMOMSGQUEUE_SRC ${PROJECT_SOURCE_DIR}/demo/DemoMsgQueue.cpp)
 # target execute
@@ -127,4 +127,16 @@ endif()
 set_target_properties(demomsgqueue_exe PROPERTIES OUTPUT_NAME "demomsgqueue")
 set_target_properties(demomsgqueue_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 target_link_libraries(demomsgqueue_exe utils ipc)
+
+set(DEMOTHREADWITHMSGQUEUE_SRC ${PROJECT_SOURCE_DIR}/demo/DemoThreadWithMsgQueue.cpp)
+# target execute
+add_executable(demothreadwithmsgqueue_exe ${DEMOTHREADWITHMSGQUEUE_SRC})
+if(USE_SHARED)
+    add_dependencies(demothreadwithmsgqueue_exe utils_share ipc_share)
+else()
+    add_dependencies(demothreadwithmsgqueue_exe utils_static ipc_static)
+endif()
+set_target_properties(demothreadwithmsgqueue_exe PROPERTIES OUTPUT_NAME "demothreadwithmsgqueue")
+set_target_properties(demothreadwithmsgqueue_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+target_link_libraries(demothreadwithmsgqueue_exe utils ipc)
 

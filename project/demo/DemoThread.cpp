@@ -40,10 +40,10 @@ class DemoThread : public ThreadObj
 public:
     DemoThread() {};
     virtual ~DemoThread() {};
-    virtual void Loop();
+    virtual void ThreadFunction();
 };
 
-void DemoThread::Loop()
+void DemoThread::ThreadFunction()
 {
     while (!m_stopRequested)
     {
@@ -94,7 +94,7 @@ int main()
                 if (!DemoList.empty())
                 {
                     pObj = DemoList.front();
-                    pObj->StopThreadAndWait();
+                    pObj->StopThread(true);
                     DemoList.pop_front();
                     delete pObj;
                 }

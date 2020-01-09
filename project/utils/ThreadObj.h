@@ -27,7 +27,7 @@ typedef enum
     THREAD_TYPE_WITH_QUEUE_RPC  = 4,
     THREAD_TYPE_BLOCKING_WAIT   = 5
 
-} M_ThreadType;
+} THREAD_TYPE_E;
 
 
 class ThreadObj
@@ -36,45 +36,49 @@ protected:
     std::string m_threadName;
     volatile bool m_stopRequested;
 
+    std::mutex m_mtx;
+    std::thread m_thread;
+
 private:
+    pid_t m_tid;
+
     /**
      * @brief Manager of ThreadObj.
      */
     static std::list<ThreadObj *> gList;
     static std::mutex gListMtx;
 
-    //std::mutex m_mtx;
-    std::thread m_thread;
-    pid_t m_tid;
-
 public:
     ThreadObj():m_stopRequested(true), m_tid(0) {};
     virtual ~ThreadObj();
+
     /**
-     * @brief joinable a thread.
+     * @brief 
      *
      * @param name
+     *
+     * @return 
      */
-    virtual void StartThread(const char *name = nullptr);
+    virtual int StartThread(const char *name = nullptr);
+
     /**
-     * @brief stop a thead with detach.
+     * @brief 
+     *
+     * @param isWaiting
      */
-    virtual void StopThread();
-    /**
-     * @brief stop a thread with join.
-     */
-    virtual void StopThreadAndWait();
+    virtual void StopThread(bool isWaiting = true);
+
     /**
      * @brief After this class inherited, the child class is used to implement Loop() for the work of thread.
      */
-    virtual void Loop() = 0;
+    virtual void ThreadFunction() = 0;
 
-    const char *GetThreadName() {return m_threadName.c_str();};
-    pthread_t GetPOSIXTid() {return m_thread.native_handle();};
-    pid_t GetTid() {return m_tid;};
+    virtual THREAD_TYPE_E ThreadType() {return THREAD_TYPE_WORK_FUNCTION;};
+    virtual unsigned int NrOfProcessedMsgs() const {return 0;};
 
-    virtual M_ThreadType GetThreadType() {return THREAD_TYPE_WORK_FUNCTION;};
-    virtual unsigned int GetNrOfProcessedMsgs() const {return 0;};
+    const char *ThreadName() {return m_threadName.c_str();};
+    pthread_t POSIXTid() {return m_thread.native_handle();};
+    pid_t Tid() {return m_tid;};
 
     /**
      * @brief the manager stop and clear all threads.
