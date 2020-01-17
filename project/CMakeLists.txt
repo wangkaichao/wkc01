@@ -21,6 +21,7 @@ include_directories(${PROJECT_SOURCE_DIR}/3rd/sqlite/sqlite-amalgamation-3260000
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/utils)
 include_directories(${PROJECT_SOURCE_DIR}/ipc)
+include_directories(${PROJECT_SOURCE_DIR}/basic)
 
 #set library path
 link_directories(${PROJECT_SOURCE_DIR}/3rd/md5-cc/lib)
@@ -83,6 +84,17 @@ else()
     set_target_properties(ipc_static PROPERTIES OUTPUT_NAME "ipc")
     set_target_properties(ipc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
     #target_link_libraries(ipc_static md5cc)
+endif()
+
+aux_source_directory(${PROJECT_SOURCE_DIR}/basic BASIC_SRC)
+if(USE_SHARED)
+    add_library(basic_share SHARED ${BASIC_SRC})
+    set_target_properties(basic_share PROPERTIES OUTPUT_NAME "basic")
+    set_target_properties(basic_share PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+else()
+    add_library(basic_static STATIC ${BASIC_SRC})
+    set_target_properties(basic_static PROPERTIES OUTPUT_NAME "basic")
+    set_target_properties(basic_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 endif()
 
 ######################### bin ######################################
