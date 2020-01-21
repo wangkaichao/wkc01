@@ -57,13 +57,13 @@ void ThreadObj::StopThread(bool isWaiting)
 void ThreadObj::StopAllThreads()
 {
     std::lock_guard<std::mutex> lock(gListMtx);
-    std::for_each(ThreadObj::gList.begin(), ThreadObj::gList.end(), [](ThreadObj *pObj) {
+    std::for_each(gList.begin(), gList.end(), [](ThreadObj *pObj) {
         if (!pObj->m_thread.joinable())
             return;
         pObj->m_stopRequested = true;
         pObj->m_thread.join();
     });
-    ThreadObj::gList.clear();
+    gList.clear();
 }
 
 void ThreadObj::DumpThreadObjList(long selection)
@@ -96,6 +96,6 @@ void ThreadObj::DelThreadObj(ThreadObj *pThreadObj)
 {
     CHK_ARG_RV(pThreadObj == nullptr);
     std::lock_guard<std::mutex> lock(gListMtx);
-    ThreadObj::gList.remove_if([pThreadObj](ThreadObj *p){return p == pThreadObj;});
+    gList.remove_if([pThreadObj](ThreadObj *p){return p == pThreadObj;});
 }
 

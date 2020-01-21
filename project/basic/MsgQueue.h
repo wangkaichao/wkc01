@@ -5,8 +5,8 @@
  * @version 1.0
  * @date 2020-01-07
  */
-#ifndef __MSGQUEUE_H__
-#define __MSGQUEUE_H__
+#ifndef MSGQUEUE_H
+#define MSGQUEUE_H
 
 #include <string>
 #include <mutex>

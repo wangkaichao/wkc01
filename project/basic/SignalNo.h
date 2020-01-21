@@ -1,5 +1,5 @@
-#ifndef __SIGNALNO_H__
-#define __SIGNALNO_H__
+#ifndef SIGNALNO_H
+#define SIGNALNO_H
 
 #ifdef ENUM_OR_STRING
 #undef ENUM_OR_STRING

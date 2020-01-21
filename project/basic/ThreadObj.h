@@ -5,8 +5,8 @@
  * @version 1.0
  * @date 2020-01-04
  */
-#ifndef __THREADOBJ_H__
-#define __THREADOBJ_H__
+#ifndef THREADOBJ_H
+#define THREADOBJ_H
 
 #include <string>
 #include <thread>
@@ -24,8 +24,7 @@ typedef enum
     THREAD_TYPE_WORK_FUNCTION   = 1,
     THREAD_TYPE_WITH_QUEUE      = 2,
     THREAD_TYPE_WITH_STATES     = 3,
-    THREAD_TYPE_WITH_QUEUE_RPC  = 4,
-    THREAD_TYPE_BLOCKING_WAIT   = 5
+    THREAD_TYPE_WITH_QUEUE_RPC  = 4
 
 } THREAD_TYPE_E;
 

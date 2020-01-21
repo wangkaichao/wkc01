@@ -5,8 +5,8 @@
  * @version 1.0
  * @date 2020-01-08
  */
-#ifndef __THREADWITHMSGQUEUE_H__
-#define __THREADWITHMSGQUEUE_H__
+#ifndef THREADWITHMSGQUEUE_H
+#define THREADWITHMSGQUEUE_H
 
 #include "Mesg.h"
 #include "MsgQueue.h"

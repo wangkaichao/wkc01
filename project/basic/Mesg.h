@@ -5,8 +5,8 @@
  * @version 1.0
  * @date 2020-01-07
  */
-#ifndef __MESG_H__
-#define __MESG_H__
+#ifndef MESG_H
+#define MESG_H
 
 #include <mqueue.h>
 #include <tuple>
