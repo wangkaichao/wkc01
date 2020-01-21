@@ -82,17 +82,6 @@ add_library          (${basic_obj} ${flag} ${BASIC_SRC})
 set_target_properties(${basic_obj} PROPERTIES OUTPUT_NAME "basic")
 set_target_properties(${basic_obj} PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
-aux_source_directory(${PROJECT_SOURCE_DIR}/basic BASIC_SRC)
-if(USE_SHARED)
-    add_library(basic_share SHARED ${BASIC_SRC})
-    set_target_properties(basic_share PROPERTIES OUTPUT_NAME "basic")
-    set_target_properties(basic_share PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-else()
-    add_library(basic_static STATIC ${BASIC_SRC})
-    set_target_properties(basic_static PROPERTIES OUTPUT_NAME "basic")
-    set_target_properties(basic_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-endif()
-
 ######################### bin ######################################
 set(DEMOLOG_SRC ${PROJECT_SOURCE_DIR}/demo/demolog.c)
 # target execute
