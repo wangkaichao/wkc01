@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 #ifndef TAG
-#define TAG __FILE__
+#define TAG "TAG" //__FILE__
 #endif
 
 #define LOGA(fmt, args...)   syslog(LOG_ALERT,   "A/%s %s %d: " fmt, TAG, __func__, __LINE__, ##args)

@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
     char as8Buff[256]; 
     int isQuit = 0;
     int fd;
-
+    
     LOG_OPEN("demo");
     printUsage();
 
