@@ -224,6 +224,16 @@ long MsgQueue::CurMsgsInQueue()
 }
 
 // static
+
+bool MsgQueue::IsBlocking(mqd_t fd)
+{
+    struct mq_attr attr;
+    int rc = 0;
+
+    CHK_FUN_M(mq_getattr(fd, &attr), rc);
+    return (attr.mq_flags & O_NONBLOCK) == 0;
+}
+
 std::string MsgQueue::MsgQueueName(mqd_t fd)
 {
     std::lock_guard<std::mutex> lock(gMapMtx);

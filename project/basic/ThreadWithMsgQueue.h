@@ -12,8 +12,6 @@
 #include "MsgQueue.h"
 #include "ThreadObj.h"
 
-#define ERR_THREAD_QUEUE_NOT_INITIALIZED        -1110
-
 class ThreadWithMsgQueue : public ThreadObj
 {
 protected:

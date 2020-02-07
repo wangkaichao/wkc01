@@ -122,3 +122,11 @@ set_target_properties(demothreadwithmsgqueue_exe PROPERTIES OUTPUT_NAME "demothr
 set_target_properties(demothreadwithmsgqueue_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 target_link_libraries(demothreadwithmsgqueue_exe basic stdc++)
 
+set(DEMOOBSERVABLE_SRC ${PROJECT_SOURCE_DIR}/demo/DemoObservable.cpp)
+# target execute
+add_executable       (demoobservable_exe ${DEMOOBSERVABLE_SRC})
+add_dependencies     (demoobservable_exe ${basic_obj})
+set_target_properties(demoobservable_exe PROPERTIES OUTPUT_NAME "demoobservable")
+set_target_properties(demoobservable_exe PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+target_link_libraries(demoobservable_exe basic stdc++)
+

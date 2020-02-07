@@ -34,7 +34,7 @@ int Mesg::CopyMsg(const Mesg& clsMsg)
 
     mMsg.ulSigName = clsMsg.mMsg.ulSigName;
     mMsg.tpSigCmd = clsMsg.mMsg.tpSigCmd;
-    mMsg.tpCbId = clsMsg.mMsg.tpCbId;
+    mMsg.ulCbId = clsMsg.mMsg.ulCbId;
     mMsg.u32SeqCnt = clsMsg.mMsg.u32SeqCnt;
 
     char *sigPtr;

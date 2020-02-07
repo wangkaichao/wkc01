@@ -96,6 +96,6 @@ void ThreadObj::DelThreadObj(ThreadObj *pThreadObj)
 {
     CHK_ARG_RV(pThreadObj == nullptr);
     std::lock_guard<std::mutex> lock(gListMtx);
-    gList.remove_if([pThreadObj](ThreadObj *p){return p == pThreadObj;});
+    gList.remove_if([pThreadObj](ThreadObj *p) {return p == pThreadObj;});
 }
 

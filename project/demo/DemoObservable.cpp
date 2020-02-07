@@ -1,5 +1,6 @@
 #include <list>
 #include "ThreadWithMsgQueue.h"
+#include "ObservableQueue.h"
 #include "wm_log.h"
 
 class ThreadApp : public ThreadWithMsgQueue
@@ -41,7 +42,8 @@ int main()
     Mesg msg;
     REQ_DATA_U unReq;
     ACK_DATA_U unAck;
- 
+    ObservableQueue observer;
+
     LOG_OPEN("demo");
     printUsage();
 
@@ -63,6 +65,7 @@ int main()
                 pObj->StartThread(name.c_str());
 
                 DemoList.push_front(pObj);
+                observer.Add(pObj->MsgQueueFd());
                 break;
             case '2':
                 msg.SigName(sigName);
@@ -70,13 +73,7 @@ int main()
                 unAck.s32Data = sigName;
                 msg.mMsg.tpSigCmd = std::make_tuple(unReq, unAck);
                 msg.SigData(new char[10] {'1', '2', '3', '4', '5'}, 10);
-                for (auto p : DemoList)
-                {
-                    Mesg msgSnd(msg);
-                    p->SendMsg(&msgSnd);
-                }
-                msg.FreeSignal();
-
+                observer.Notify(&msg);
                 sigName++;
                 break;
             case '3':
@@ -89,12 +86,14 @@ int main()
                 if (!DemoList.empty())
                 {
                     pObj = DemoList.front();
+                    observer.Del(pObj->MsgQueueFd());
                     delete pObj;
                     DemoList.pop_front();
                 }
                 break;
             case 'q':
                 isQuit = 1;
+                observer.Clear();
                 for (auto p : DemoList)
                 {
                     delete p;

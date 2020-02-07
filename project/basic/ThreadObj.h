@@ -28,7 +28,6 @@ typedef enum
 
 } THREAD_TYPE_E;
 
-
 class ThreadObj
 {
 protected:

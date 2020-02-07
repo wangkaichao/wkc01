@@ -16,10 +16,6 @@
 #define MESG_PRIO_HIGH  1
 #define MESG_PRIO_LOW   0
 
-#define ERR_MSG_RESPONSE_QUEUE_NOT_SET         -1300 // 0xAEC
-#define ERR_MSG_SIGNALSIZE_NOT_SET             -1301 // 0xAEB
-#define ERR_MSG_COPY_MSG_ALLOC_FAILED          -1302 // 0xAEA
-
 class MsgQueue;
 
 /**
@@ -60,9 +56,9 @@ typedef union
 typedef struct 
 {
     unsigned long ulSigName;
-    std::tuple<REQ_DATA_U, ACK_DATA_U, ACK_DATA_U> tpSigCmd;
+    std::tuple<REQ_DATA_U, ACK_DATA_U> tpSigCmd;
     std::tuple<char *, int> tpSigData;
-    std::tuple<unsigned long, unsigned long> tpCbId;
+    unsigned long ulCbId;
     unsigned int u32SeqCnt;
     SigObj *pclsSigObj;
 } MESG_T;
@@ -134,8 +130,8 @@ public:
         std::get<1>(mMsg.tpSigData) = size;
     };
     std::tuple<char *, int> SigData() const {return mMsg.tpSigData;};
-    unsigned long CbId() const {return std::get<0>(mMsg.tpCbId);};
-    void CbId(unsigned long ulCbId) {std::get<0>(mMsg.tpCbId) = ulCbId;};
+    unsigned long CbId() const {return mMsg.ulCbId;};
+    void CbId(unsigned long ulCbId) {mMsg.ulCbId = ulCbId;};
     //....
     unsigned int SeqCnt() const {return mMsg.u32SeqCnt;};
     void SeqCnt(unsigned int s32SeqCnt) {mMsg.u32SeqCnt = s32SeqCnt;};
