@@ -1,13 +1,25 @@
 #include <list>
 #include "ThreadWithMsgQueue.h"
 #include "ObservableQueue.h"
+#include "ObservableFunction.h"
 #include "wm_log.h"
 
 class ThreadApp : public ThreadWithMsgQueue
 {
 public:
+    ThreadApp();
     void ProcessMsg(Mesg *pMsg);
+    int FunctionMsg(Mesg *pMsg);
+
+public:
+    std::function<int(Mesg*)> m_fun;
 };
+
+ThreadApp::ThreadApp()
+{
+    using std::placeholders::_1;
+    m_fun = std::bind(&ThreadApp::FunctionMsg, this, _1);
+}
 
 void ThreadApp::ProcessMsg(Mesg *pMsg)
 {
@@ -17,6 +29,17 @@ void ThreadApp::ProcessMsg(Mesg *pMsg)
     std::tie(ptr, size) = pMsg->SigData();
     LOGD("sigId:%lu, data:%s, size:%d", pMsg->SigName(), ptr, size);
     pMsg->FreeSignal();
+}
+
+int ThreadApp::FunctionMsg(Mesg *pMsg)
+{
+    char *ptr = nullptr;
+    int size = 0;
+
+    std::tie(ptr, size) = pMsg->SigData();
+    LOGD("sigId:%lu, data:%s, size:%d", pMsg->SigName(), ptr, size);
+    pMsg->FreeSignal();
+    return 0;
 }
 
 static void printUsage(void)
@@ -36,13 +59,14 @@ int main()
     char as8Buff[256]; 
     int isQuit = 0;
     std::list<ThreadWithMsgQueue *> DemoList; 
-    ThreadWithMsgQueue *pObj = nullptr;
+    ThreadApp *pObj = nullptr;
     unsigned long  sigName = 3; // Note SIG_ID_STOP_THREAD = 2;
     std::string name;
     Mesg msg;
     REQ_DATA_U unReq;
     ACK_DATA_U unAck;
     ObservableQueue observer;
+    ObservableFunction observer2;
 
     LOG_OPEN("demo");
     printUsage();
@@ -66,6 +90,7 @@ int main()
 
                 DemoList.push_front(pObj);
                 observer.Add(pObj->MsgQueueFd());
+                observer2.Add(pObj->m_fun);
                 break;
             case '2':
                 msg.SigName(sigName);
@@ -74,6 +99,8 @@ int main()
                 msg.mMsg.tpSigCmd = std::make_tuple(unReq, unAck);
                 msg.SigData(new char[10] {'1', '2', '3', '4', '5'}, 10);
                 observer.Notify(&msg);
+                observer2.Notify(&msg);
+                msg.FreeSignal();
                 sigName++;
                 break;
             case '3':
@@ -85,15 +112,17 @@ int main()
             case 'd':
                 if (!DemoList.empty())
                 {
-                    pObj = DemoList.front();
+                    pObj = (ThreadApp *)DemoList.front();
                     observer.Del(pObj->MsgQueueFd());
-                    delete pObj;
+                    observer2.Del(pObj->m_fun);
                     DemoList.pop_front();
+                    delete pObj;
                 }
                 break;
             case 'q':
                 isQuit = 1;
                 observer.Clear();
+                observer2.Clear();
                 for (auto p : DemoList)
                 {
                     delete p;

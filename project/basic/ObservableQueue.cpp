@@ -19,10 +19,7 @@ void ObservableQueue::Add(mqd_t fd, unsigned long ulSigName, unsigned long ulCbI
         }
     }
 
-    Element_T e;
-    e.fd = fd;
-    e.ulSigName = ulSigName;
-    e.ulCbId = ulCbId;
+    Element_T e = {fd, ulSigName, ulCbId};
     m_list.push_front(e);
 }
 
@@ -80,7 +77,6 @@ int ObservableQueue::Notify(Mesg *pMsg)
 
     if (pMsg->SigDataPtr() && !pMsg->SigDataSize())
     {
-        pMsg->FreeSignal();
         LOGE("signal size not set.");
         return ERR_OBS_SIGNAL_SIZE_NOT_SET;
     }
@@ -99,8 +95,6 @@ int ObservableQueue::Notify(Mesg *pMsg)
             gExecuteCnt++;
         }
     }
-
-    pMsg->FreeSignal();
     return rc;
 }
 
