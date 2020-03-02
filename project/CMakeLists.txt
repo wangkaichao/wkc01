@@ -33,8 +33,25 @@ link_directories(${PROJECT_SOURCE_DIR}/lib)
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mno-unaligned-access -fno-aggressive-loop-optimizations")
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DARCH=arm -DHIARCH=hi3516a -DHICHIP=0x3516A100 ")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g3")
+# Address Sanitizer
+# -fsanitize-recover=address ASAN_OPTIONS=halt_on_error=0, if has error not quit.
+# (heap) use-after-free
+# heap-buffer-overflow
+# stack-buffer-overflow
+# global-buffer-overflow
+# use-after-return
+# use-after-scope
+# initializations-order-bugs
+set(ASan "-fsanitize=address -fno-omit-frame-pointer")
+#set(ASan "")
+
+# memory-leaks
+# Note:Below gcc4.9, ASAN_OPTIONS=detect_leaks=1 not support ARM.
+# alloc_dealloc_mismatch=0
+set(ENV{ASAN_OPTIONS} "detect_leaks=1")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 ${ASan}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g3 ${ASan}")
 
 message("========================================")
 #option(Mac "Mac" ON)

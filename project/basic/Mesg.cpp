@@ -8,6 +8,7 @@
 #include "Mesg.h"
 #include "MsgQueue.h"
 #include "wm_log.h"
+#include <stdlib.h>
 
 Mesg::Mesg(const Mesg& clsMsg)
 {
@@ -43,13 +44,10 @@ int Mesg::CopyMsg(const Mesg& clsMsg)
 
     if (sigPtr && sigSize > 0)
     {
-        auto ptr = new char[sigSize];
+        char *ptr = (char *)malloc(sigSize);
         if (ptr)
         {
-            for (int i = 0; i < sigSize; ++i)
-            {
-                ptr[i] = sigPtr[i];
-            }
+            memcpy(ptr, sigPtr, sigSize);
             mMsg.tpSigData = std::make_tuple(ptr, sigSize);
         }
         else
@@ -80,7 +78,7 @@ void Mesg::FreeSignal()
     char *p = (char *)std::get<0>(mMsg.tpSigData);
     if (p)
     {
-        delete p;
+        free(p);
         mMsg.tpSigData = std::make_tuple(nullptr, 0);
     }
 

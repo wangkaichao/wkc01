@@ -52,8 +52,9 @@ int main()
                 unReq.s32Data = sigCnt;
                 unAck.s32Data = sigCnt;
                 msg.mMsg.tpSigCmd = std::make_tuple(unReq, unAck);
-                ptr = new char[10] {'1', '2', '3', '4', '5'};
                 size = 10;
+                ptr = (char *)malloc(size);
+                strncpy(ptr, "12345", size);
                 msg.mMsg.tpSigData = std::make_tuple(ptr, size);
 
                 for (auto p : DemoList)

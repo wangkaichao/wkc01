@@ -69,7 +69,11 @@ int main()
                 unReq.s32Data = sigName;
                 unAck.s32Data = sigName;
                 msg.mMsg.tpSigCmd = std::make_tuple(unReq, unAck);
-                msg.SigData(new char[10] {'1', '2', '3', '4', '5'}, 10);
+                {
+                char *ps8Buf = (char *)malloc(10);
+                strncpy(ps8Buf, "12345", 10);
+                msg.SigData(ps8Buf, 10);
+                }
                 for (auto p : DemoList)
                 {
                     Mesg msgSnd(msg);

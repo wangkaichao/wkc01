@@ -97,7 +97,12 @@ int main()
                 unReq.s32Data = sigName;
                 unAck.s32Data = sigName;
                 msg.mMsg.tpSigCmd = std::make_tuple(unReq, unAck);
-                msg.SigData(new char[10] {'1', '2', '3', '4', '5'}, 10);
+                {
+                int size = 10;
+                char *ptr = (char *)malloc(size);
+                strncpy(ptr, "12345", size);
+                msg.SigData(ptr, size);
+                }
                 observer.Notify(&msg);
                 observer2.Notify(&msg);
                 msg.FreeSignal();
