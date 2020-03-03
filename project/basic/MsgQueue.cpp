@@ -9,6 +9,8 @@
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <sys/select.h>
 #include <errno.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #include "MsgQueue.h"
 #include "SignalNo.h"
@@ -16,10 +18,26 @@
 
 unsigned long MsgQueue::gReceiveMsgCnt = 0;
 unsigned long MsgQueue::gSendMsgCnt = 0;
+bool MsgQueue::gUnlimit = false;
 
 std::unordered_map<mqd_t, MsgQueue *> MsgQueue::gMap;
 std::mutex MsgQueue::gMapMtx;
 
+MsgQueue::MsgQueue():m_msgQueueFd(-1), m_msgQueueName(""), 
+        m_msgQueueNotInUse(false), m_msgQueueSize(0), m_maxMsgInQueue(0)
+{
+    if (!gUnlimit)
+    {
+        struct rlimit rlim = {RLIM_INFINITY, RLIM_INFINITY};
+        CHK_FUN_RV_M(getrlimit(RLIMIT_MSGQUEUE, &rlim));
+        rlim.rlim_cur = RLIM_INFINITY; //soft limit
+        rlim.rlim_max = RLIM_INFINITY; //hard limit
+        setrlimit(RLIMIT_MSGQUEUE, &rlim);
+
+        gUnlimit = true;
+    }
+}
+ 
 MsgQueue::~MsgQueue()
 {
     Unlink();

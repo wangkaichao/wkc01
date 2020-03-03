@@ -32,13 +32,13 @@ private:
     unsigned long m_sendMsgCnt; // one msg queue
     static unsigned long gReceiveMsgCnt; // all msg queues
     static unsigned long gSendMsgCnt; // all msg queues
+    static bool gUnlimit;
 
     static std::unordered_map<mqd_t, MsgQueue *> gMap;
     static std::mutex gMapMtx;
 
 public:
-    MsgQueue():m_msgQueueFd(-1), m_msgQueueName(""), 
-        m_msgQueueNotInUse(false), m_msgQueueSize(0), m_maxMsgInQueue(0) {};
+    MsgQueue();
     ~MsgQueue();
 
     /**

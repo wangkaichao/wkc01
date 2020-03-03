@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #include "wm_epoll.h"
 #include "list.h"
@@ -225,10 +227,25 @@ int wm_epoll_signal_open(int sig_num)
     return fd;
 }
 
+// fd = wm_epoll_queue_open("/test1", O_CREAT | O_RDWR | O_NONBLOCK, 0, 100, 50);
 int wm_epoll_queue_open(const char *ps8Name, int flag, int mode, int maxmsg, int msgsize)
 {
+    static WM_BOOL limit = WM_TRUE;
     mqd_t fd;
     struct mq_attr mqattr;
+    
+    if (limit)
+    {
+        // Note: The values in /proc/sys/fs/mqueue/* .
+        // ulimit -a .
+        struct rlimit rlim = {RLIM_INFINITY, RLIM_INFINITY};
+        CHK_FUN_RE_M(getrlimit(RLIMIT_MSGQUEUE, &rlim), -1);
+        rlim.rlim_cur = RLIM_INFINITY; //soft limit
+        rlim.rlim_max = RLIM_INFINITY; //hard limit
+        setrlimit(RLIMIT_MSGQUEUE, &rlim);
+
+        limit = WM_FALSE;
+    }
 
     CHK_ARG_RE(!ps8Name, -1);
     mq_unlink(ps8Name);
