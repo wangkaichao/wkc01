@@ -12,8 +12,8 @@
 
 Mesg::Mesg(const Mesg& clsMsg)
 {
-    SigData(nullptr, 0);
-    SigObjPtr(nullptr);
+    MsgData(nullptr, 0);
+    MsgObjPtr(nullptr);
     CopyMsg(clsMsg);
 }
 
@@ -31,16 +31,16 @@ int Mesg::CopyMsg(const Mesg& clsMsg)
 {
     int rc = 0;
 
-    FreeSignal();
+    Free();
 
-    mMsg.ulSigName = clsMsg.mMsg.ulSigName;
-    mMsg.tpSigCmd = clsMsg.mMsg.tpSigCmd;
+    mMsg.ulMsgId = clsMsg.mMsg.ulMsgId;
+    mMsg.tpMsgCmd = clsMsg.mMsg.tpMsgCmd;
     mMsg.ulCbId = clsMsg.mMsg.ulCbId;
     mMsg.u32SeqCnt = clsMsg.mMsg.u32SeqCnt;
 
     char *sigPtr;
     int sigSize;
-    std::tie(sigPtr, sigSize) = clsMsg.mMsg.tpSigData;
+    std::tie(sigPtr, sigSize) = clsMsg.mMsg.tpMsgData;
 
     if (sigPtr && sigSize > 0)
     {
@@ -48,44 +48,44 @@ int Mesg::CopyMsg(const Mesg& clsMsg)
         if (ptr)
         {
             memcpy(ptr, sigPtr, sigSize);
-            mMsg.tpSigData = std::make_tuple(ptr, sigSize);
+            mMsg.tpMsgData = std::make_tuple(ptr, sigSize);
         }
         else
         {
-            LOGE("Mesg new memory failed. signal:%lu", clsMsg.mMsg.ulSigName);
+            LOGE("Mesg new memory failed. msgId:%lu", clsMsg.mMsg.ulMsgId);
             rc = ERR_MSG_COPY_MSG_ALLOC_FAILED;
-            mMsg.tpSigData = std::make_tuple(nullptr, 0);
+            mMsg.tpMsgData = std::make_tuple(nullptr, 0);
         }
     }
     else
     {
-        mMsg.tpSigData = std::make_tuple(nullptr, 0);
+        mMsg.tpMsgData = std::make_tuple(nullptr, 0);
     }
 
-    if (clsMsg.mMsg.pclsSigObj)
+    if (clsMsg.mMsg.pclsMsgObj)
     {
-        mMsg.pclsSigObj = clsMsg.mMsg.pclsSigObj->Clone();
+        mMsg.pclsMsgObj = clsMsg.mMsg.pclsMsgObj->Clone();
     }
     else
     {
-        mMsg.pclsSigObj = nullptr;
+        mMsg.pclsMsgObj = nullptr;
     }
     return rc;
 }
 
-void Mesg::FreeSignal()
+void Mesg::Free()
 {
-    char *p = (char *)std::get<0>(mMsg.tpSigData);
+    char *p = (char *)std::get<0>(mMsg.tpMsgData);
     if (p)
     {
         free(p);
-        mMsg.tpSigData = std::make_tuple(nullptr, 0);
+        mMsg.tpMsgData = std::make_tuple(nullptr, 0);
     }
 
-    if (mMsg.pclsSigObj)
+    if (mMsg.pclsMsgObj)
     {
-        delete mMsg.pclsSigObj;
-        mMsg.pclsSigObj = nullptr;
+        delete mMsg.pclsMsgObj;
+        mMsg.pclsMsgObj = nullptr;
     }
 }
 
@@ -94,7 +94,7 @@ int Mesg::SendMsg(MsgQueue *pclsMsgQueue, int s32Prio)
     int rc = MsgQueue::Send(pclsMsgQueue->MsgQueueFd(), this, s32Prio);
     if (rc != 0)
     {
-        FreeSignal();
+        Free();
     }
     return rc;
 }
@@ -104,7 +104,7 @@ int Mesg::SendMsg(mqd_t fd, int s32Prio)
     int rc = MsgQueue::Send(fd, this, s32Prio);
     if (rc != 0)
     {
-        FreeSignal();
+        Free();
     }
     return rc;
 }

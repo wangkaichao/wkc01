@@ -94,7 +94,7 @@ ENUM_D(SIGWINCH   ), \
 #endif
 #define ENUM_D(x) x
 
-static int gas32Sig[] = {
+static int gas32Msg[] = {
     MACRO_BODY
 };
 
@@ -104,11 +104,11 @@ static int gas32Sig[] = {
 #endif
 #define ENUM_D(x) #x
 
-static const char *gaps8Sig[] = {
+static const char *gaps8Msg[] = {
     MACRO_BODY
 };
 
-#define SIGNUM  sizeof(gas32Sig) / sizeof(int)
+#define SIGNUM  sizeof(gas32Msg) / sizeof(int)
 
 static void sig_fun(int sig)
 {
@@ -116,8 +116,8 @@ static void sig_fun(int sig)
 
     fprintf(stdout, "signo:%d", sig);
     for (i = 0; i < SIGNUM; i++) {
-        if (sig == gas32Sig[i])
-            fprintf(stdout, ", signame:%s", gaps8Sig[i]);
+        if (sig == gas32Msg[i])
+            fprintf(stdout, ", signame:%s", gaps8Msg[i]);
     }
     putchar('\n');
 }
@@ -131,8 +131,8 @@ int main(void)
     fprintf(stdout, "linux signum:%lu\n", SIGNUM);
 
     for (i = 0; i < SIGNUM; i++) {
-        if (signal(gas32Sig[i], sig_fun) == SIG_ERR)
-            fprintf(stderr, "err: signame:%s\n", gaps8Sig[i]);
+        if (signal(gas32Msg[i], sig_fun) == SIG_ERR)
+            fprintf(stderr, "err: signame:%s\n", gaps8Msg[i]);
     }
 
     for (; ;)

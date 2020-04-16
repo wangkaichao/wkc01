@@ -13,7 +13,7 @@
 #include <sys/resource.h>
 
 #include "MsgQueue.h"
-#include "SignalNo.h"
+#include "EnumMsg.h"
 #include "wm_log.h"
 
 unsigned long MsgQueue::gReceiveMsgCnt = 0;
@@ -53,7 +53,7 @@ int MsgQueue::Open(const char *name, int flag, mode_t mode, long maxmsg)
     mq_unlink(name);
     m_receiveMsgCnt = 0;
     m_sendMsgCnt = 0;
-    m_lastMsgSigName = 0;
+    m_lastMsgMsgId = 0;
 
     m_msgQueueName = name;
     m_msgQueueSize = maxmsg;
@@ -146,21 +146,21 @@ int MsgQueue::Send(Mesg *pclsMsg, unsigned int s32Prio)
 int MsgQueue::Send(mqd_t fd, Mesg *pclsMsg, unsigned int s32Prio)
 {
     CHK_ARG_RE(pclsMsg == nullptr, ERR_MSG_QUEUE_PTR_IS_NULL);
-    SIGNAL_ID_E enSigId = (SIGNAL_ID_E)pclsMsg->SigName();
+    MSG_ID_E enMsgId = (MSG_ID_E)pclsMsg->MsgId();
     if (fd <= 0)
     {
-        pclsMsg->FreeSignal();
-        LOGE("msg queue handle<=0. signal=%d %s", enSigId, GetSignalIdName(enSigId));
+        pclsMsg->Free();
+        LOGE("msg queue handle<=0. msgId=%d %s", enMsgId, GetMsgIdName(enMsgId));
         return ERR_MSG_QUEUE_SEND_HANDLE_IS_NULL;
     }
 
-    if (pclsMsg->SigDataPtr() && pclsMsg->SigDataSize() == 0)
+    if (pclsMsg->MsgDataPtr() && pclsMsg->MsgDataSize() == 0)
     {
-        LOGW("Signal pointer is set, but size is 0. signal=%d %s", enSigId, GetSignalIdName(enSigId));
+        LOGW("Msgnal pointer is set, but size is 0. msgId=%d %s", enMsgId, GetMsgIdName(enMsgId));
     }
-    if (pclsMsg->SigName() == 0)
+    if (pclsMsg->MsgId() == 0)
     {
-        LOGW("signal = 0 Thread-Id = %ld", syscall(SYS_gettid));
+        LOGW("msgId = 0 Thread-Id = %ld", syscall(SYS_gettid));
     }
 
     MsgQueue *p = MsgQueue::MsgQueuePtr(fd);
@@ -169,14 +169,14 @@ int MsgQueue::Send(mqd_t fd, Mesg *pclsMsg, unsigned int s32Prio)
     {
         if (!p || !p->m_msgQueueNotInUse)
         {
-            LOGE("msg send failed:%m. signal=%d %s", enSigId, GetSignalIdName(enSigId));
+            LOGE("msg send failed:%m. msgId=%d %s", enMsgId, GetMsgIdName(enMsgId));
         }
-        pclsMsg->FreeSignal();
+        pclsMsg->Free();
         return ERR_MSG_QUEUE_SEND_FAILED;
     }
 
-    pclsMsg->SigData(nullptr, 0);
-    pclsMsg->SigObjPtr(nullptr);
+    pclsMsg->MsgData(nullptr, 0);
+    pclsMsg->MsgObjPtr(nullptr);
     gSendMsgCnt++;
     if (p)
     {
@@ -213,14 +213,14 @@ int MsgQueue::Receive(Mesg *pclsMsg, unsigned int s32Prio, bool isPolling)
 
     int rc_size = mq_receive(m_msgQueueFd, pclsMsg->MsgAddr(), Mesg::MsgSize(), NULL);
     //LOGD("receive size:%d, response info:%d", rc_size, \
-        std::get<1>(pclsMsg->mMsg.tpSigCmd).s32Data);
+        std::get<1>(pclsMsg->mMsg.tpMsgCmd).s32Data);
     if (rc_size <= 0)
     {
         LOGE("msg queue rcv failed:%m, fd:%d rc_size:%d", m_msgQueueFd, rc_size);
         return ERR_MSG_QUEUE_RECEIVE_FAILED;
     }
 
-    m_lastMsgSigName = pclsMsg->SigName();
+    m_lastMsgMsgId = pclsMsg->MsgId();
     m_receiveMsgCnt++;
     gReceiveMsgCnt++;
 
@@ -303,7 +303,7 @@ void MsgQueue::DumpMsgQueueMap(int selection)
         }
         LOGD("%6d | %4ld | %9ld | %9ld | %s | %8lu | %7lu | %s\n",
             fd, lMaxMsg, p.second->m_maxMsgInQueue, lCurMsgs, ps8Block,
-            p.second->m_lastMsgSigName,
+            p.second->m_lastMsgMsgId,
             p.second->m_receiveMsgCnt,
             p.second->m_msgQueueName.c_str());
     }
@@ -322,9 +322,9 @@ void MsgQueue::DumpMsgQueue(mqd_t fd)
         if (rc_size > 0)
         {
             msgNr++;
-            LOGD("Msg read from queue - nr: %d  signalname: %lu",
-                msgNr, clsMsg.SigName());
-            clsMsg.FreeSignal();
+            LOGD("Msg read from queue - nr: %d  msgIdname: %lu",
+                msgNr, clsMsg.MsgId());
+            clsMsg.Free();
         }
     }
     while (rc_size > 0);

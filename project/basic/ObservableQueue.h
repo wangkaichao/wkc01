@@ -13,7 +13,7 @@ class ObservableQueue
     struct Element_T
     {
         mqd_t fd;
-        unsigned long ulSigName;
+        unsigned long ulMsgId;
         unsigned long ulCbId;
     };
 
@@ -26,11 +26,11 @@ public:
     ObservableQueue() {};
     virtual ~ObservableQueue() {};
 
-    virtual void Add(mqd_t fd, unsigned long ulSigName = 0, unsigned long ulCbId = 0);
-    virtual void Del(mqd_t fd, unsigned long ulSigName = 0);
+    virtual void Add(mqd_t fd, unsigned long ulMsgId = 0, unsigned long ulCbId = 0);
+    virtual void Del(mqd_t fd, unsigned long ulMsgId = 0);
     virtual void Clear();
-    virtual int Count(unsigned long ulSigName = 0);
-    virtual bool IsHas(mqd_t fd, unsigned long ulSigName = 0);
+    virtual int Count(unsigned long ulMsgId = 0);
+    virtual bool IsHas(mqd_t fd, unsigned long ulMsgId = 0);
     virtual int Notify(Mesg *pMsg);
 };
 #endif

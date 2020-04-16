@@ -13,7 +13,7 @@ extern "C" {
 #define ERR_THREAD_QUEUE_NOT_INITIALIZED        -1110
 
 #define ERR_MSG_RESPONSE_QUEUE_NOT_SET          -1300 // 0xAEC
-#define ERR_MSG_SIGNALSIZE_NOT_SET              -1301 // 0xAEB
+#define ERR_MSG_MSG_SIZE_NOT_SET                -1301 // 0xAEB
 #define ERR_MSG_COPY_MSG_ALLOC_FAILED           -1302 // 0xAEA
 
 // All error codes have negative values.
@@ -38,7 +38,7 @@ extern "C" {
 #define ERR_MSG_QUEUE_SELECT_BUT_NOT_OUR_QUEUE  -1428 // 0xA6C
 
 #define ERR_OBS_BLOCKING_QUEUE_NOT_ALLOWED      -1520 // 0xA10
-#define ERR_OBS_SIGNAL_SIZE_NOT_SET             -1521 // 0xA0F
+#define ERR_OBS_MSG_SIZE_NOT_SET                -1521 // 0xA0F
 
 #ifdef __cplusplus
 }

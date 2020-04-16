@@ -21,18 +21,18 @@ class MsgQueue;
 /**
  * @brief 
  */
-class SigObj
+class MsgObj
 {
 public:
-    SigObj() {};
-    virtual ~SigObj() {};
+    MsgObj() {};
+    virtual ~MsgObj() {};
 
     /**
      * @brief 
      *
      * @return 
      */
-    virtual SigObj* Clone() = 0;
+    virtual MsgObj* Clone() = 0;
 };
 
 typedef union
@@ -55,12 +55,12 @@ typedef union
  */
 typedef struct 
 {
-    unsigned long ulSigName;
-    std::tuple<REQ_DATA_U, ACK_DATA_U> tpSigCmd;
-    std::tuple<char *, int> tpSigData;
+    unsigned long ulMsgId;
+    std::tuple<REQ_DATA_U, ACK_DATA_U> tpMsgCmd;
+    std::tuple<char *, int> tpMsgData;
     unsigned long ulCbId;
     unsigned int u32SeqCnt;
-    SigObj *pclsSigObj;
+    MsgObj *pclsMsgObj;
 } MESG_T;
 
 /**
@@ -73,7 +73,7 @@ public:
 
 public:
     Mesg() {memset(&mMsg, 0, sizeof(mMsg));};
-    Mesg(unsigned long ulSigName) {Mesg(); mMsg.ulSigName = ulSigName;};
+    Mesg(unsigned long ulMsgId) {Mesg(); mMsg.ulMsgId = ulMsgId;};
     Mesg(const Mesg& clsMsg);
     Mesg& operator=(const Mesg& clsMsg);
     virtual ~Mesg() {};
@@ -90,7 +90,7 @@ public:
     /**
      * @brief 
      */
-    void FreeSignal();
+    void Free();
 
     /**
      * @brief 
@@ -118,25 +118,25 @@ public:
     static size_t MsgSize() {return sizeof(MESG_T);};
 
     // GET/SET
-    unsigned long SigName() const {return mMsg.ulSigName;};
-    void SigName(unsigned long ulSigName) {mMsg.ulSigName = ulSigName;};
-    long SigReqLong() const {return std::get<0>(mMsg.tpSigCmd).slData;};
-    void SigReqLong(long slData) {std::get<0>(mMsg.tpSigCmd).slData = slData;};
+    unsigned long MsgId() const {return mMsg.ulMsgId;};
+    void MsgId(unsigned long ulMsgId) {mMsg.ulMsgId = ulMsgId;};
+    long MsgReqLong() const {return std::get<0>(mMsg.tpMsgCmd).slData;};
+    void MsgReqLong(long slData) {std::get<0>(mMsg.tpMsgCmd).slData = slData;};
 
-    char *SigDataPtr() const {return std::get<0>(mMsg.tpSigData);};
-    int SigDataSize() const {return std::get<1>(mMsg.tpSigData);};
-    void SigData(char *ptr, int size) {
-        std::get<0>(mMsg.tpSigData) = ptr;
-        std::get<1>(mMsg.tpSigData) = size;
+    char *MsgDataPtr() const {return std::get<0>(mMsg.tpMsgData);};
+    int MsgDataSize() const {return std::get<1>(mMsg.tpMsgData);};
+    void MsgData(char *ptr, int size) {
+        std::get<0>(mMsg.tpMsgData) = ptr;
+        std::get<1>(mMsg.tpMsgData) = size;
     };
-    std::tuple<char *, int> SigData() const {return mMsg.tpSigData;};
+    std::tuple<char *, int> MsgData() const {return mMsg.tpMsgData;};
     unsigned long CbId() const {return mMsg.ulCbId;};
     void CbId(unsigned long ulCbId) {mMsg.ulCbId = ulCbId;};
     //....
     unsigned int SeqCnt() const {return mMsg.u32SeqCnt;};
     void SeqCnt(unsigned int s32SeqCnt) {mMsg.u32SeqCnt = s32SeqCnt;};
-    SigObj *SigObjPtr() const {return mMsg.pclsSigObj;};
-    void SigObjPtr(SigObj *pclsSigObj) {mMsg.pclsSigObj = pclsSigObj;};
+    MsgObj *MsgObjPtr() const {return mMsg.pclsMsgObj;};
+    void MsgObjPtr(MsgObj *pclsMsgObj) {mMsg.pclsMsgObj = pclsMsgObj;};
 };
 
 #endif

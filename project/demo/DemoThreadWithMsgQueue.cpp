@@ -13,9 +13,9 @@ void ThreadApp::ProcessMsg(Mesg *pMsg)
     char *ptr = nullptr;
     int size = 0;
 
-    std::tie(ptr, size) = pMsg->SigData();
-    LOGD("sigId:%lu, data:%s, size:%d", pMsg->SigName(), ptr, size);
-    pMsg->FreeSignal();
+    std::tie(ptr, size) = pMsg->MsgData();
+    LOGD("sigId:%lu, data:%s, size:%d", pMsg->MsgId(), ptr, size);
+    pMsg->Free();
 }
 
 static void printUsage(void)
@@ -36,7 +36,7 @@ int main()
     int isQuit = 0;
     std::list<ThreadWithMsgQueue *> DemoList; 
     ThreadWithMsgQueue *pObj = nullptr;
-    unsigned long  sigName = 3; // Note SIG_ID_STOP_THREAD = 2;
+    unsigned long  sigName = 3; // Note MSG_ID_STOP_THREAD = 1;
     std::string name;
     Mesg msg;
     REQ_DATA_U unReq;
@@ -65,21 +65,21 @@ int main()
                 DemoList.push_front(pObj);
                 break;
             case '2':
-                msg.SigName(sigName);
+                msg.MsgId(sigName);
                 unReq.s32Data = sigName;
                 unAck.s32Data = sigName;
-                msg.mMsg.tpSigCmd = std::make_tuple(unReq, unAck);
+                msg.mMsg.tpMsgCmd = std::make_tuple(unReq, unAck);
                 {
                 char *ps8Buf = (char *)malloc(10);
                 strncpy(ps8Buf, "12345", 10);
-                msg.SigData(ps8Buf, 10);
+                msg.MsgData(ps8Buf, 10);
                 }
                 for (auto p : DemoList)
                 {
                     Mesg msgSnd(msg);
                     p->SendMsg(&msgSnd);
                 }
-                msg.FreeSignal();
+                msg.Free();
 
                 sigName++;
                 break;

@@ -12,7 +12,7 @@ protect:
     {
         State state;
         SubState sub;
-        unsigned long ulSigName;
+        unsigned long ulMsgId;
         std::function<void(const clsObj&, Mesg *)> fun;
     };
 

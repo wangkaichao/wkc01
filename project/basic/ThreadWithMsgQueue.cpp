@@ -2,7 +2,7 @@
 #include <chrono>
 
 #include "ThreadWithMsgQueue.h"
-#include "SignalNo.h"
+#include "EnumMsg.h"
 
 ThreadWithMsgQueue::~ThreadWithMsgQueue()
 {
@@ -35,12 +35,12 @@ int ThreadWithMsgQueue::SendMsg(Mesg *pMsg)
     }
     else
     {
-        if (pMsg->SigName() != SIG_ID_STOP_THREAD)
+        if (pMsg->MsgId() != MSG_ID_STOP_THREAD)
         {
             LOGE("ThreadWithMsgQueue not initialized, SendMsg Failed. pthread_t:%lu", pthread_self());
             rc = ERR_THREAD_QUEUE_NOT_INITIALIZED;
         }
-        pMsg->FreeSignal();
+        pMsg->Free();
     }
     return rc;
 }
@@ -65,7 +65,7 @@ void ThreadWithMsgQueue::StopThread(bool isWaiting)
     if (m_initialized)
     {
         Mesg msg;
-        msg.SigName(SIG_ID_STOP_THREAD);
+        msg.MsgId(MSG_ID_STOP_THREAD);
         msg.SendMsg(&m_msgQueue);
     }
     ThreadObj::StopThread(isWaiting);
@@ -88,7 +88,7 @@ void ThreadWithMsgQueue::LoopReadMsg(bool isPolling)
         rc = m_msgQueue.Receive(&msg, MESG_PRIO_LOW, isPolling);
         if (rc >= 0)
         {
-            if (msg.SigName() != SIG_ID_STOP_THREAD)
+            if (msg.MsgId() != MSG_ID_STOP_THREAD)
             {
                 ProcessMsg(&msg);
                 m_nrOfProcessedMsgs++;

@@ -26,7 +26,7 @@ private:
     long m_msgQueueSize;
     long m_maxMsgInQueue;
     fd_set m_rfds;
-    unsigned long m_lastMsgSigName; // for debug
+    unsigned long m_lastMsgMsgId; // for debug
 
     unsigned long m_receiveMsgCnt; // one msg queue
     unsigned long m_sendMsgCnt; // one msg queue
@@ -100,7 +100,7 @@ public:
     long CurMsgsInQueue();
     bool MsgQueueNotInUse() const {return m_msgQueueNotInUse;};
     void MsgQueueNotInUse(bool bVal) {m_msgQueueNotInUse = bVal;};
-    unsigned long LastMsgSigName() const {return m_lastMsgSigName;};
+    unsigned long LastMsgMsgId() const {return m_lastMsgMsgId;};
     const char *MsgQueueName() const {return m_msgQueueName.c_str();};
 
     static bool IsBlocking(mqd_t fd);

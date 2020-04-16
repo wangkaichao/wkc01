@@ -48,14 +48,14 @@ int main()
                 DemoList.push_front(pObj);
                 break;
             case '2':
-                msg.mMsg.ulSigName = sigCnt;
+                msg.mMsg.ulMsgId = sigCnt;
                 unReq.s32Data = sigCnt;
                 unAck.s32Data = sigCnt;
-                msg.mMsg.tpSigCmd = std::make_tuple(unReq, unAck);
+                msg.mMsg.tpMsgCmd = std::make_tuple(unReq, unAck);
                 size = 10;
                 ptr = (char *)malloc(size);
                 strncpy(ptr, "12345", size);
-                msg.mMsg.tpSigData = std::make_tuple(ptr, size);
+                msg.mMsg.tpMsgData = std::make_tuple(ptr, size);
 
                 for (auto p : DemoList)
                 {
@@ -63,7 +63,7 @@ int main()
                     p->Send(&msgSnd);
                 }
 
-                msg.FreeSignal();
+                msg.Free();
                 sigCnt++;
                 break;
             case '3':
@@ -72,9 +72,9 @@ int main()
                     ptr = nullptr;
                     size = 0;
                     p->Receive(&msgRcv);
-                    std::tie(ptr, size) = msgRcv.mMsg.tpSigData;
-                    LOGD("sigId:%lu, data:%s, size:%d", msgRcv.mMsg.ulSigName, ptr, size);
-                    msgRcv.FreeSignal();
+                    std::tie(ptr, size) = msgRcv.mMsg.tpMsgData;
+                    LOGD("sigId:%lu, data:%s, size:%d", msgRcv.mMsg.ulMsgId, ptr, size);
+                    msgRcv.Free();
                 }
                 break;
             case '4':

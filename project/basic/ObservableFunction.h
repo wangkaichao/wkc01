@@ -12,7 +12,7 @@ class ObservableFunction
     struct Element_T
     {
         std::function<int(Mesg *)>& fun;
-        unsigned long ulSigName;
+        unsigned long ulMsgId;
         unsigned long ulCbId;
     };
 
@@ -25,11 +25,11 @@ public:
     ObservableFunction() {};
     virtual ~ObservableFunction() {};
 
-    virtual void Add(std::function<int(Mesg *)>& fun, unsigned long ulSigName = 0, unsigned long ulCbId = 0);
-    virtual void Del(std::function<int(Mesg *)>& fun, unsigned long ulSigName = 0);
+    virtual void Add(std::function<int(Mesg *)>& fun, unsigned long ulMsgId = 0, unsigned long ulCbId = 0);
+    virtual void Del(std::function<int(Mesg *)>& fun, unsigned long ulMsgId = 0);
     virtual void Clear();
-    virtual int Count(unsigned long ulSigName = 0);
-    virtual bool IsHas(std::function<int(Mesg *)>& fun, unsigned long ulSigName = 0);
+    virtual int Count(unsigned long ulMsgId = 0);
+    virtual bool IsHas(std::function<int(Mesg *)>& fun, unsigned long ulMsgId = 0);
     virtual int Notify(Mesg *pMsg);
 };
 #endif
