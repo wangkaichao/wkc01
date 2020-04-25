@@ -13,7 +13,7 @@
 #include <sys/resource.h>
 
 #include "MsgQueue.h"
-#include "EnumMsg.h"
+#include "EnumDef.h"
 #include "wm_log.h"
 
 unsigned long MsgQueue::gReceiveMsgCnt = 0;

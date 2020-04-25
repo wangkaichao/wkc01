@@ -2,7 +2,7 @@
 #include <chrono>
 
 #include "ThreadWithMsgQueue.h"
-#include "EnumMsg.h"
+#include "EnumDef.h"
 
 ThreadWithMsgQueue::~ThreadWithMsgQueue()
 {
